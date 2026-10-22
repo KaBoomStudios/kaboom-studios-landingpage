@@ -1,0 +1,21 @@
+---
+import type { Node } from '../lib/structured-data';
+
+interface Props {
+  nodes: Node[];
+}
+
+const { nodes } = Astro.props;
+
+// Ein Skript mit `@graph` statt eines Skripts je Knoten: so koennen sich die
+// Knoten ueber ihre `@id` aufeinander beziehen. `<` wird maskiert, damit ein
+// Text mit "</script>" das Skript nicht vorzeitig beendet.
+const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': nodes }).replace(
+  /</g,
+  '\\u003c',
+);
+---
+
+{/* is:inline: Astro soll das Skript unveraendert ausgeben, es ist Datentext
+    und kein JavaScript zum Buendeln. */}
+{nodes.length > 0 && <script is:inline type="application/ld+json" set:html={json} />}

@@ -1,0 +1,209 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import PackageCard from '../components/PackageCard.astro';
+import Reveal from '../components/Reveal.astro';
+import LightDivider from '../components/LightDivider.astro';
+import Ablauf from '../components/Ablauf.astro';
+import Faq from '../components/Faq.astro';
+import CrossLinks from '../components/CrossLinks.astro';
+import Kontakt from '../components/Kontakt.astro';
+import {
+  booking,
+  faq,
+  maintenance,
+  pages,
+  pricing,
+  services,
+  websiteLeadTime,
+  websitePackages,
+} from '../data/site';
+import { serviceNode } from '../lib/structured-data';
+
+const page = pages.websites;
+// Ueber die Seite statt ueber die Position im Array: so bleibt die Zuordnung
+// richtig, wenn sich die Reihenfolge der Leistungskarten aendert.
+const service = services.find((s) => s.page === page)!;
+const pageFaq = faq.filter((item) => item.showOn.includes(page));
+
+const careerContents = [
+  'Ihr Betrieb und Ihr Team, mit Fotos',
+  'Was Auszubildende bei Ihnen lernen',
+  'Offene Stellen und Ausbildungsplätze',
+  'Wie man sich bewirbt und bei wem',
+];
+
+// Die eigene Buchung des Erstgespraechs ist das Beispiel fuer eine
+// Online-Terminbuchung, aber nur, wenn sie tatsaechlich ueber einen
+// Buchungsdienst laeuft. Solange der Button eine E-Mail oeffnet, entfaellt
+// der Hinweis.
+const hasBookingUrl = booking.url.length > 0;
+---
+
+<PageLayout
+  title="Website für Handwerksbetriebe erstellen lassen | KaBoom Studios"
+  description="Website für Ihren Handwerksbetrieb zum Festpreis ab 900 €: mit Ihrem Logo und Ihren Farben, schnell auf Handy und PC, eingerichtet für Google."
+  breadcrumb={page.title}
+  wide
+  structuredData={[serviceNode(service)]}
+>
+  <PageIntro
+    eyebrow="Websites für Handwerksbetriebe"
+    title="Eine Website für Ihren Betrieb, zum Festpreis"
+    lede="Ich baue Ihnen eine Website, gestaltet mit Ihrem Logo und Ihren Farben. Sie lädt schnell, funktioniert auf Handy und PC und ist für Google eingerichtet. Den Preis kennen Sie, bevor es losgeht."
+    price={service.price}
+    priceNote="Festpreis laut schriftlichem Angebot"
+    facts={[
+      `Bis zum Start ${websiteLeadTime}`,
+      'Website und Domain gehören Ihnen',
+      'Google-Unternehmensprofil inklusive',
+      `Wartung danach auf Wunsch, ${maintenance.price}`,
+    ]}
+  />
+
+  <LightDivider start={4} />
+
+  <section
+    id="pakete"
+    aria-labelledby="pakete-titel"
+    class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+  >
+    <SectionHeader eyebrow="Pakete" title="Zwei Pakete zum Festpreis" id="pakete-titel">
+      <p>
+        Basis reicht für eine übersichtliche Seite mit dem Wichtigsten. Standard
+        ist für Betriebe, die jede Leistung zeigen und über die Suche nach Gewerk
+        und Ort gefunden werden wollen. Den Festpreis nennt Ihnen das Angebot.
+      </p>
+    </SectionHeader>
+
+    <ul class="grid gap-6 md:grid-cols-2 lg:max-w-[980px]">
+      {
+        websitePackages.map((pkg, i) => (
+          <li class="flex">
+            <Reveal delay={i * 100} class="flex w-full">
+              <PackageCard pkg={pkg} priceFallback="Preis im Angebot" highlight={i === 1} />
+            </Reveal>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <LightDivider start={7} />
+
+  {/* Was ueber die Pakete hinaus moeglich ist. Die Karriereseite wird mit
+      dem Alltag im Betrieb begruendet, nicht mit Zahlen zum
+      Bewerberverhalten, die sich hier nicht belegen lassen. */}
+  <section
+    aria-labelledby="wunsch-titel"
+    class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+  >
+    <SectionHeader eyebrow="Auf Wunsch" title="Was Ihre Website zusätzlich kann" id="wunsch-titel" />
+
+    <ul class="grid gap-6 md:grid-cols-2">
+      <li class="flex">
+        <Reveal class="flex w-full">
+          <div class="flex w-full flex-col rounded-2xl border border-surface-2 bg-surface p-7 sm:p-9">
+            <h3 class="mb-3 text-[21px] font-bold text-white">Karriereseite für Auszubildende</h3>
+            <p class="mb-5 text-[15px] leading-relaxed text-body">
+              Gute Auszubildende sind schwer zu finden. Eine Karriereseite zeigt
+              Bewerbern Ihren Betrieb, bevor sie sich bei Ihnen melden. Und sie
+              gibt Ihnen etwas, worauf Sie in einer Stellenanzeige, auf dem
+              Firmenwagen oder bei der Berufsmesse verweisen können.
+            </p>
+            <ul class="mb-6 flex flex-col gap-2.5">
+              {
+                careerContents.map((entry) => (
+                  <li class="flex gap-3 text-[15px] leading-relaxed text-body">
+                    <span
+                      aria-hidden="true"
+                      class="mt-2 size-1.5 shrink-0 rounded-full bg-accent shadow-[0_0_8px_1px_var(--color-accent)]"
+                    />
+                    {entry}
+                  </li>
+                ))
+              }
+            </ul>
+            <p class="mt-auto text-[15px] font-semibold text-white">
+              Im Paket Standard enthalten, bei Basis gegen Aufpreis.
+            </p>
+          </div>
+        </Reveal>
+      </li>
+      <li class="flex">
+        <Reveal delay={100} class="flex w-full">
+          <div class="flex w-full flex-col rounded-2xl border border-surface-2 bg-surface p-7 sm:p-9">
+            <h3 class="mb-3 text-[21px] font-bold text-white">Online-Terminbuchung</h3>
+            <p class="mb-5 text-[15px] leading-relaxed text-body">
+              Kunden buchen ihren Termin selbst, auch abends und am Wochenende.
+              Ich richte dafür einen Buchungsdienst ein und binde ihn auf Ihrer
+              Website ein.
+            </p>
+            {
+              hasBookingUrl && (
+                <p class="mb-6 text-[15px] leading-relaxed text-body">
+                  So funktioniert auch das Erstgespräch auf dieser Seite: Sie
+                  wählen eine freie Zeit und bekommen eine Bestätigung per
+                  E-Mail. Darin können Sie den Termin selbst absagen oder
+                  verschieben.
+                  <a
+                    href={booking.url}
+                    rel="noopener"
+                    class="font-semibold text-accent transition-colors hover:text-accent-soft"
+                  >
+                    {booking.label}
+                  </a>
+                </p>
+              )
+            }
+            <p class="mt-auto text-[15px] font-semibold text-white">
+              Den Preis nennt Ihnen das Angebot.
+            </p>
+          </div>
+        </Reveal>
+      </li>
+    </ul>
+  </section>
+
+  <LightDivider start={1.5} />
+  <Ablauf
+    title="So entsteht Ihre Website"
+    intro={`Bis zum Start dauert es ${websiteLeadTime}.`}
+  />
+  <LightDivider start={5.5} />
+
+  {/* Ziel des Links "Mehr zur Wartung" auf der Startseite. */}
+  <section
+    id="wartung"
+    aria-labelledby="wartung-titel"
+    class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+  >
+    <SectionHeader eyebrow="Nach dem Start" title={maintenance.title} id="wartung-titel">
+      <p>
+        Die Wartung ist freiwillig. Sie wählen eines der beiden Pakete, oder ich
+        übergebe Ihnen die Website und Sie kümmern sich selbst.
+      </p>
+    </SectionHeader>
+
+    <ul class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {
+        [...maintenance.plans, maintenance.handover].map((pkg, i) => (
+          <li class="flex">
+            <Reveal delay={i * 100} class="flex w-full">
+              <PackageCard pkg={pkg} />
+            </Reveal>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="mt-6 text-[15px] leading-relaxed text-body">{pricing.taxNote}</p>
+  </section>
+
+  <LightDivider start={3} />
+  <Faq items={pageFaq} />
+  <LightDivider start={6.5} />
+  <CrossLinks current={page} />
+  <LightDivider start={8} />
+  <Kontakt />
+</PageLayout>

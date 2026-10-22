@@ -1,0 +1,46 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+
+interface Props {
+  title: string;
+  metaTitle: string;
+  description: string;
+  /**
+   * Rahmt den Inhalt sichtbar als noch fehlenden Rechtstext ein. Sobald eine
+   * Seite echten Inhalt hat, auf false setzen.
+   */
+  placeholder?: boolean;
+}
+
+const { title, metaTitle, description, placeholder = true } = Astro.props;
+---
+
+{/* Rechtliche Seiten stehen auf noindex: sie sollen erreichbar sein, aber
+    nicht statt der Leistungsseiten in den Suchergebnissen auftauchen. */}
+<PageLayout title={metaTitle} description={description} breadcrumb={title} noindex>
+  <div class="max-w-[720px]">
+    <p class="mb-3.5 text-[13px] font-bold tracking-[0.08em] uppercase text-accent">
+      Rechtliches
+    </p>
+    <h1
+      class="mb-8 text-[clamp(2rem,4vw,3rem)] font-extrabold tracking-[-0.02em] text-white"
+    >
+      {title}
+    </h1>
+
+    {/* Rechtstexte werden hier nicht verfasst und nicht generiert. Sie kommen
+        entweder aus einem Generator oder bestehen, wie beim Impressum, aus
+        Angaben, die der Betreiber selbst liefert. Solange nichts vorliegt,
+        bleibt der Platzhalter. */}
+    {
+      placeholder ? (
+        <div class="rounded-2xl border border-dashed border-surface-2 bg-surface p-8">
+          <p class="font-mono text-sm text-muted">[Rechtstext folgt]</p>
+          <slot />
+        </div>
+      ) : (
+        <slot />
+      )
+    }
+  </div>
+</PageLayout>

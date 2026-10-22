@@ -1,0 +1,41 @@
+---
+import { booking, contact } from '../data/site';
+
+interface Props {
+  /**
+   * `lg`: Hauptaufruf in Inhaltsbereichen, mit Lichtschein.
+   * `sm`: kompakte Form fuer die Navigationsleiste.
+   * `menu`: volle Breite im aufgeklappten Mobilmenue.
+   */
+  size?: 'lg' | 'sm' | 'menu';
+  class?: string;
+}
+
+const { size = 'lg', class: className } = Astro.props;
+
+// Ein Baustein fuer alle Buchungsaufrufe: steht der Buchungslink in site.ts,
+// fuehrt jeder Button dorthin. Fehlt er, oeffnet sich eine E-Mail mit
+// vorausgefuelltem Betreff. So ist die Seite nie ohne Kontaktweg, und der
+// Wechsel betrifft nur eine Einstellung.
+const hasBookingUrl = booking.url.length > 0;
+const href = hasBookingUrl
+  ? booking.url
+  : `${contact.emailHref}?subject=${encodeURIComponent(booking.mailSubject)}`;
+const label = hasBookingUrl ? booking.label : booking.fallbackLabel;
+---
+
+<a
+  href={href}
+  rel={hasBookingUrl ? 'noopener' : undefined}
+  class:list={[
+    'inline-flex items-center justify-center bg-accent font-bold text-on-accent transition-colors hover:bg-accent-soft',
+    {
+      lg: 'rounded-full px-8 py-4 text-base shadow-[0_0_32px_4px_rgba(16,185,129,0.35)]',
+      sm: 'rounded-full px-5.5 py-2.5 text-sm',
+      menu: 'rounded-xl px-4 py-3 text-[15px]',
+    }[size],
+    className,
+  ]}
+>
+  {label}
+</a>

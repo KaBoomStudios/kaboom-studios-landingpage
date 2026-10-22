@@ -1,0 +1,86 @@
+---
+import type { Service } from '../data/site';
+import { features } from '../data/site';
+
+interface Props {
+  service: Service;
+}
+
+const { service } = Astro.props;
+const { featured = false } = service;
+---
+
+<article
+  class:list={[
+    'relative flex w-full flex-col gap-4.5 rounded-2xl bg-surface p-9 transition duration-300 hover:-translate-y-1.5',
+    featured
+      ? 'border border-accent hover:shadow-[0_16px_40px_-8px_rgba(16,185,129,0.45)]'
+      : 'border border-surface-2 hover:border-accent hover:shadow-[0_12px_32px_-8px_rgba(16,185,129,0.35)]',
+  ]}
+>
+  {
+    service.badge && (
+      <p class="absolute -top-2.5 left-6 rounded-full bg-accent px-3 py-1 text-[11px] font-extrabold tracking-[0.05em] uppercase text-on-accent">
+        {service.badge}
+      </p>
+    )
+  }
+
+  <div class="grid size-11 place-items-center rounded-[10px] bg-surface-2">
+    <svg
+      class="size-5.5 text-accent"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      {service.icon === 'check' && <path d="M4 12.5 9.5 18 20 6" />}
+      {
+        service.icon === 'browser' && (
+          <>
+            <rect x="3" y="4" width="18" height="16" rx="2" />
+            <path d="M3 9h18" />
+          </>
+        )
+      }
+      {
+        service.icon === 'flow' && (
+          <>
+            <path d="M20.5 12a8.5 8.5 0 1 1-3.6-6.9" />
+            <path d="M21 4v5h-5" />
+          </>
+        )
+      }
+    </svg>
+  </div>
+
+  <h3 class="text-[21px] font-bold text-white">{service.title}</h3>
+
+  <p class="flex-1 text-[15px] leading-relaxed text-body">{service.description}</p>
+
+  {
+    features.showPricing && service.price && (
+      <p class="text-lg font-bold text-accent">
+        {service.price}
+        {service.priceNote && (
+          <span class="mt-0.5 block text-sm font-medium text-body">{service.priceNote}</span>
+        )}
+      </p>
+    )
+  }
+
+  <a
+    href={service.page.href}
+    class:list={[
+      'inline-flex items-center self-start rounded-full px-5 py-2.5 text-sm transition-colors',
+      featured
+        ? 'bg-accent font-bold text-on-accent hover:bg-accent-soft'
+        : 'border border-surface-2 font-semibold text-white hover:border-accent',
+    ]}
+  >
+    Mehr erfahren<span class="sr-only">: {service.page.title}</span>
+  </a>
+</article>

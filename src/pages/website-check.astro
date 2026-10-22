@@ -1,0 +1,218 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import InfoGrid from '../components/InfoGrid.astro';
+import Reveal from '../components/Reveal.astro';
+import LightDivider from '../components/LightDivider.astro';
+import Ablauf from '../components/Ablauf.astro';
+import Faq from '../components/Faq.astro';
+import CrossLinks from '../components/CrossLinks.astro';
+import Kontakt from '../components/Kontakt.astro';
+import { checkReport, checkSteps, contact, faq, pages, services } from '../data/site';
+import { serviceNode } from '../lib/structured-data';
+
+const page = pages.websiteCheck;
+// Ueber die Seite statt ueber die Position im Array: so bleibt die Zuordnung
+// richtig, wenn sich die Reihenfolge der Leistungskarten aendert.
+const service = services.find((s) => s.page === page)!;
+const pageFaq = faq.filter((item) => item.showOn.includes(page));
+
+// Zeilenumbrueche im Text einer mailto-Adresse muessen als %0D%0A stehen
+// (RFC 6068), deshalb werden die Zeilen mit CR LF verbunden.
+const orderHref =
+  `${contact.emailHref}?subject=${encodeURIComponent(checkReport.mailSubject)}` +
+  `&body=${encodeURIComponent(checkReport.mailBody.join('\r\n'))}`;
+
+// Die Prueffelder folgen den Abschnitten 2 bis 6 des Berichts. Aendert sich
+// der Bericht, wird diese Liste mit angepasst.
+const areas = [
+  {
+    title: 'Rechtliche Pflichtangaben',
+    text: 'Stehen im Impressum alle Pflichtangaben, und finden Besucher es auf Anhieb?',
+  },
+  {
+    title: 'Datenschutz und Einwilligung',
+    text: 'Welche fremden Dienste lädt Ihre Seite, und nennt die Datenschutzerklärung sie? Lädt etwas, bevor der Besucher zugestimmt hat? Lässt sich die Cookie-Abfrage so leicht ablehnen wie annehmen?',
+  },
+  {
+    title: 'Sicherheit und Technik',
+    text: 'Verschlüsselte Verbindung (HTTPS), Antwortzeit des Servers und veraltete Programmbausteine mit bekannten Sicherheitslücken.',
+  },
+  {
+    title: 'Mobile Nutzung',
+    text: 'Lässt sich die Seite auf dem Handy lesen und bedienen? Das prüfe ich auf einem echten Gerät.',
+  },
+  {
+    title: 'Auffindbarkeit bei Google',
+    text: 'Werden Sie gefunden, wenn jemand nach Ihrem Gewerk und Ihrem Ort sucht? Haben Sie ein gepflegtes Google-Unternehmensprofil?',
+  },
+];
+
+// Gliederung des Berichts, in dieser Reihenfolge.
+const outline = [
+  'Das Wichtigste in Kürze, mit Gesamturteil',
+  'Rechtliche Pflichtangaben',
+  'Datenschutz und Einwilligung',
+  'Sicherheit und Technik',
+  'Mobile Nutzung',
+  'Auffindbarkeit bei Google',
+  'Was jetzt zu tun ist: sofort, bald, irgendwann',
+  'Mein Vorschlag, mit Preis',
+  'Prüfumfang und Grenzen',
+];
+
+// Aufbau jedes einzelnen Befunds im Bericht.
+const findingParts = [
+  { label: 'Befund', text: 'Was der Fall ist, konkret mit Zahl oder Zitat.' },
+  { label: 'Grundlage', text: 'Gesetz, Urteil oder sachlicher Grund.' },
+  { label: 'Für Sie heißt das', text: 'Die Folge in einem Satz, ohne Fachsprache.' },
+  { label: 'Aufwand', text: 'Grobe Einschätzung, wie viel Arbeit die Behebung macht.' },
+];
+
+// Jede Aussage im Bericht gehoert erkennbar zu genau einer dieser Arten.
+// Das trennt den Bericht von einem automatischen Gratis-Scan.
+const sources = [
+  { label: 'Gemessen', text: 'Habe ich selbst an Ihrer Seite festgestellt.' },
+  {
+    label: 'Laut Ihren Angaben',
+    text: 'Steht in Ihren Texten, etwa in der Datenschutzerklärung. Das ist kein Befund, bis es gemessen ist.',
+  },
+  { label: 'Nicht geprüft', text: 'Ließ sich nicht feststellen. Das steht ausdrücklich da, statt geraten zu werden.' },
+];
+---
+
+<PageLayout
+  title="Website-Check: Website prüfen lassen | KaBoom Studios"
+  description="Ich prüfe Impressum, Datenschutz, Cookie-Einwilligung, Technik, Handy-Darstellung und Google-Auffindbarkeit Ihrer Website. Schriftlicher Bericht ab 149 €."
+  breadcrumb={page.title}
+  wide
+  structuredData={[serviceNode(service)]}
+>
+  <PageIntro
+    eyebrow="Website-Check für Handwerksbetriebe"
+    title="Website prüfen lassen: der Website-Check für Ihren Betrieb"
+    lede="Sie bekommen einen schriftlichen Prüfbericht statt eines Verkaufsgesprächs. Ich prüfe Impressum und Datenschutzerklärung, die Cookie-Abfrage, die Technik, die Darstellung auf dem Handy und ob Google Sie findet. Zu jedem Punkt steht im Bericht, was zu tun ist und wie viel Arbeit es macht."
+    price={service.price}
+    facts={[...checkReport.highlights]}
+  >
+    <p class="mt-5 text-center text-sm text-body">
+      Oder direkt beauftragen:
+      <a
+        href={orderHref}
+        class="font-semibold text-accent transition-colors hover:text-accent-soft"
+      >
+        Website-Check per E-Mail
+      </a>
+    </p>
+  </PageIntro>
+
+  <LightDivider start={4} />
+
+  <section
+    aria-labelledby="pruefung-titel"
+    class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+  >
+    <SectionHeader eyebrow="Prüfumfang" title="Was ich prüfe" id="pruefung-titel">
+      <p>
+        Fünf Bereiche. Jeder Punkt bekommt im Bericht eine Ampelfarbe, so sehen
+        Sie auf einen Blick, wo es eilt.
+      </p>
+    </SectionHeader>
+    <InfoGrid items={areas} numbered />
+  </section>
+
+  <LightDivider start={7} />
+
+  <section
+    aria-labelledby="bericht-titel"
+    class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+  >
+    <SectionHeader eyebrow="Der Bericht" title="So sieht der Bericht aus" id="bericht-titel">
+      <p>
+        Geschrieben für Betriebsinhaber, nicht für Techniker. Fachbegriffe
+        erkläre ich, englische Begriffe übersetze ich.
+      </p>
+    </SectionHeader>
+
+    <div class="grid gap-6 lg:grid-cols-[1fr_1.15fr] lg:gap-10">
+      {/* Gliederung wie ein Inhaltsverzeichnis: die Nummern sind die
+          Abschnittsnummern des Berichts. */}
+      <Reveal>
+        <div class="rounded-2xl border border-surface-2 bg-surface p-7 sm:p-9">
+          <h3 class="mb-6 text-[18px] font-bold text-white">Gliederung</h3>
+          <ol class="flex flex-col">
+            {
+              outline.map((entry, i) => (
+                <li class="flex gap-4 border-b border-surface-2 py-3 text-[15px] last:border-b-0">
+                  <span class="w-5 shrink-0 font-bold text-accent tabular-nums">{i + 1}</span>
+                  <span class="text-body">{entry}</span>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </Reveal>
+
+      <div class="flex flex-col gap-6">
+        <Reveal delay={100}>
+          <div class="rounded-2xl border border-surface-2 bg-surface p-7 sm:p-9">
+            <h3 class="mb-6 text-[18px] font-bold text-white">So ist jeder Befund aufgebaut</h3>
+            <dl class="flex flex-col gap-4 border-l-2 border-accent pl-5">
+              {
+                findingParts.map((part) => (
+                  <div>
+                    <dt class="text-[15px] font-bold text-white">{part.label}</dt>
+                    <dd class="text-[15px] leading-relaxed text-body">{part.text}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+        </Reveal>
+
+        <Reveal delay={200}>
+          <div class="rounded-2xl border border-surface-2 bg-surface p-7 sm:p-9">
+            <h3 class="mb-2 text-[18px] font-bold text-white">Woher jede Aussage stammt</h3>
+            <p class="mb-6 text-[15px] leading-relaxed text-body">
+              Bei jeder Aussage steht, zu welcher Art sie gehört.
+            </p>
+            <dl class="flex flex-col gap-3">
+              {
+                sources.map((source) => (
+                  <div class="rounded-xl bg-surface-2/60 p-4 sm:flex sm:gap-4">
+                    <dt class="mb-1 text-[15px] font-bold text-accent sm:mb-0 sm:w-40 sm:shrink-0">{source.label}</dt>
+                    <dd class="text-sm leading-relaxed text-body">{source.text}</dd>
+                  </div>
+                ))
+              }
+            </dl>
+          </div>
+        </Reveal>
+      </div>
+    </div>
+
+    {/* Derselbe Hinweis steht am Ende jedes Berichts. */}
+    <p
+      class="mt-10 rounded-2xl border border-dashed border-surface-2 px-6 py-5 text-[15px] leading-relaxed text-body"
+    >
+      <span class="font-bold text-white">Keine Rechtsberatung:</span> Der Bericht
+      ist eine technische und organisatorische Bestandsaufnahme. Für eine
+      rechtsverbindliche Prüfung Ihrer Rechtstexte wenden Sie sich an einen
+      Rechtsanwalt oder an einen Anbieter für Rechtstexte.
+    </p>
+  </section>
+
+  <LightDivider start={1.5} />
+  <Ablauf
+    title="So läuft der Website-Check"
+    intro="Für Sie ist der Aufwand klein: eine Adresse und ein paar Antworten."
+    steps={checkSteps}
+  />
+  <LightDivider start={6} />
+  <Faq items={pageFaq} />
+  <LightDivider start={3} />
+  <CrossLinks current={page} />
+  <LightDivider start={8} />
+  <Kontakt title="Lassen Sie uns über Ihre Website sprechen" />
+</PageLayout>

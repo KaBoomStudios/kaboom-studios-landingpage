@@ -1,0 +1,174 @@
+---
+import { Picture } from 'astro:assets';
+import portrait from '../assets/portrait.jpg';
+import PageLayout from '../layouts/PageLayout.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import InfoGrid from '../components/InfoGrid.astro';
+import Reveal from '../components/Reveal.astro';
+import LightDivider from '../components/LightDivider.astro';
+import Leistungen from '../components/Leistungen.astro';
+import Kontakt from '../components/Kontakt.astro';
+import { about, booking, callTexts, hero, imprint, pages, site } from '../data/site';
+
+const page = pages.ueberMich;
+
+// Der Alltag im Betrieb, so wie ihn jeder Betriebsinhaber kennt, und was
+// daraus fuer die Arbeit folgt. Bewusst allgemein: es gibt keine konkreten
+// Erlebnisse, die hier erzaehlt werden koennten, und erfunden wird nichts.
+const everyday = [
+  {
+    title: 'Tagsüber auf der Baustelle',
+    // Kein Kontaktformular versprechen: das gehoert zu keinem Paket.
+    text: 'Wenn das Telefon klingelt, haben Sie die Hände voll. Auf Ihrer Website finden Kunden alles Wichtige und schreiben Ihnen, statt mitten in der Arbeit anzurufen. Sie antworten, wenn Sie Zeit dafür haben.',
+  },
+  {
+    title: 'Büroarbeit nach Feierabend',
+    text: `Angebote, Rechnungen und E-Mails bleiben für den Abend. Deshalb halte ich die Abstimmung kurz: ein Erstgespräch von ${booking.durationMinutes} Minuten, ein schriftliches Angebot zum Festpreis, Rückmeldungen ${callTexts.via}.`,
+  },
+  {
+    title: 'Gute Leute sind schwer zu finden',
+    text: 'Bewerber schauen sich Ihren Betrieb im Netz an, bevor sie sich melden. Eine Karriereseite zeigt ihnen, wie bei Ihnen gearbeitet wird und was Auszubildende lernen. Im Paket Standard ist sie enthalten.',
+  },
+];
+---
+
+<PageLayout
+  title={`Über mich | ${site.name}`}
+  description={`${site.owner}: ${about.years} Jahre im Handwerk, vor allem im Fassaden- und Fensterbau. Heute baue ich Websites für Handwerksbetriebe im ${site.region}.`}
+  breadcrumb={page.title}
+  wide
+>
+  {/* Kopf mit Foto. Das Foto steht hier im ersten Bildschirm und wird
+      deshalb wie im Hero sofort geladen, mit festen Abmessungen. */}
+  <div class="relative overflow-hidden">
+    <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+      <div class="light-glow absolute -top-[20%] -right-[10%] h-[80%] w-[60%]"></div>
+      <div
+        class="light-beam light-sweep absolute top-[35%] left-0 h-0.5 w-[140%] [transform:translateX(-25%)_rotate(-8deg)]"
+        style="--sweep-duration:9s;--sweep-start:3s"
+      >
+      </div>
+    </div>
+
+    <div
+      class="relative mx-auto flex max-w-[1280px] flex-col gap-12 px-5 pt-6 pb-20 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:gap-16 lg:px-12 lg:pt-10 lg:pb-25"
+    >
+      <div class="relative z-10 min-w-0 max-w-[680px] lg:flex-1">
+        <p class="mb-4 text-[13px] font-bold tracking-[0.08em] uppercase text-accent">
+          {page.title}
+        </p>
+        <h1
+          class="mb-7 text-[clamp(2.25rem,4.5vw,3.5rem)] leading-[1.08] font-extrabold tracking-[-0.03em] text-white"
+        >
+          Vom Handwerk zum Webdesign
+        </h1>
+        <p class="text-[19px] leading-relaxed text-body">
+          Ich bin {site.owner}. {about.years} Jahre habe ich im Handwerk
+          gearbeitet. Heute baue ich Websites für Handwerksbetriebe und lokale
+          Dienstleister, mit Sitz in {imprint.city} im {site.region}.
+        </p>
+      </div>
+
+      <div class="relative z-10 w-full max-w-[300px] self-center lg:w-[300px] lg:shrink-0">
+        <div
+          class="rounded-3xl p-1.5"
+          style="background:linear-gradient(160deg, rgba(16,185,129,0.5), rgba(31,41,55,0.2))"
+        >
+          <Picture
+            src={portrait}
+            alt={`Portrait von ${site.owner}`}
+            formats={['avif', 'webp']}
+            fallbackFormat="jpeg"
+            width={600}
+            height={706}
+            widths={[300, 600]}
+            sizes="300px"
+            loading="eager"
+            fetchpriority="high"
+            class="block h-88 w-full rounded-[20px] object-cover contrast-105"
+          />
+        </div>
+        <p class="mt-4 text-center">
+          <span class="block text-base font-bold text-white">{site.owner}</span>
+          <span class="block text-[13px] text-muted">{hero.portraitCaption}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <LightDivider start={4} />
+
+  <section
+    aria-labelledby="handwerk-titel"
+    class="mx-auto flex max-w-[1280px] flex-col gap-12 px-5 py-20 sm:px-8 lg:flex-row lg:items-start lg:gap-16 lg:px-12 lg:py-25"
+  >
+    <div class="lg:flex-1">
+      <SectionHeader eyebrow="Mein Weg" title={`${about.years} Jahre im Handwerk`} id="handwerk-titel">
+        {about.craft.map((text) => <p>{text}</p>)}
+      </SectionHeader>
+
+      <Reveal>
+        <h3 class="mb-4 text-[19px] font-bold text-white">Technik war immer dabei</h3>
+        <div class="flex max-w-[640px] flex-col gap-4 text-base leading-relaxed text-body">
+          {about.tech.map((text) => <p>{text}</p>)}
+        </div>
+      </Reveal>
+    </div>
+
+    <Reveal delay={150} class="w-full lg:w-80 lg:shrink-0">
+      <div class="flex flex-col gap-4">
+        <div class="rounded-2xl border border-surface-2 bg-surface p-6">
+          <p class="text-[28px] font-extrabold text-accent">{about.years} Jahre</p>
+          <p class="mt-1 mb-4 text-sm text-body">im Handwerk, in diesen Gewerken:</p>
+          <ul class="flex flex-col gap-2.5">
+            {
+              about.trades.map((trade) => (
+                <li class="flex gap-3 text-[15px] leading-snug text-white">
+                  <span
+                    aria-hidden="true"
+                    class="mt-1.5 size-1.5 shrink-0 rounded-full bg-accent shadow-[0_0_6px_1px_var(--color-accent)]"
+                  >
+                  </span>
+                  {trade}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+        {/* Dieselbe Kachel wie auf der Startseite: fuehrt zur Seite fuer die Region. */}
+        <a
+          href={pages.rheinSieg.href}
+          class="group block rounded-2xl border border-surface-2 bg-surface p-6 transition-colors hover:border-accent"
+        >
+          <p class="text-[28px] font-extrabold text-accent">{imprint.city}</p>
+          <p class="mt-1 text-sm text-body">
+            Sitz im {site.region}, einmal pro Projekt komme ich zu Ihnen in den Betrieb
+          </p>
+          <p class="mt-3 text-sm font-semibold text-white group-hover:text-accent-soft">
+            {pages.rheinSieg.title}
+          </p>
+        </a>
+      </div>
+    </Reveal>
+  </section>
+
+  <LightDivider start={1.5} />
+
+  <section
+    aria-labelledby="alltag-titel"
+    class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+  >
+    <SectionHeader eyebrow="Was Sie davon haben" title="Ich kenne den Alltag im Betrieb" id="alltag-titel">
+      <p>
+        Ich weiß, wie ein Arbeitstag im Handwerk aussieht. Daran richte ich
+        aus, wie Ihre Website funktioniert und wie wir zusammenarbeiten.
+      </p>
+    </SectionHeader>
+    <InfoGrid items={everyday} />
+  </section>
+
+  <LightDivider start={6} />
+  <Leistungen />
+  <LightDivider start={3} />
+  <Kontakt title="Lassen Sie uns über Ihren Betrieb sprechen" />
+</PageLayout>

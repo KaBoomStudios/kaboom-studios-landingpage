@@ -1,0 +1,67 @@
+---
+interface Props {
+  /** Verzoegerung in Millisekunden, um gestaffelt einzublenden. */
+  delay?: number;
+  class?: string;
+}
+
+const { delay = 0, class: className } = Astro.props;
+---
+
+{/* Der Inhalt bleibt statisches HTML. Dieser Wrapper traegt nur die
+    data-Attribute, an denen das Skript unten und die Regeln in global.css
+    haengen. */}
+<div data-reveal data-reveal-delay={delay} class={className}>
+  <slot />
+</div>
+
+<script>
+  /**
+   * Blendet Inhalte beim Hereinscrollen ein.
+   *
+   * Im HTML ist alles sichtbar. Das Skript versteckt nur Elemente, die beim
+   * Laden unterhalb des ersten Bildschirms liegen: der Nutzer sieht sie in
+   * diesem Moment ohnehin nicht, also blitzt nichts auf. Inhalt im ersten
+   * Bildschirm wird nie versteckt, auch nicht kurz bis zum Start des Skripts.
+   * Ohne JavaScript und bei reduzierter Bewegung bleibt alles, wie es ist.
+   *
+   * Astro buendelt dieses Skript einmal, egal wie oft die Komponente auf der
+   * Seite steht.
+   */
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!reduced && 'IntersectionObserver' in window) {
+    const show = (el: HTMLElement) => {
+      const delay = Number(el.dataset.revealDelay) || 0;
+      const apply = () => (el.dataset.reveal = 'shown');
+      if (delay > 0) window.setTimeout(apply, delay);
+      else apply();
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          observer.unobserve(entry.target);
+          show(entry.target as HTMLElement);
+        }
+      },
+      // Der Beobachtungsbereich reicht nach oben weit ueber den Bildschirm
+      // hinaus. Ausloeser ist damit "Oberkante liegt oberhalb der Unterkante
+      // des Bildschirms". Der Observer meldet nur Wechsel: ohne diese
+      // Erweiterung bliebe ein Element, das ein Sprung (Ankerlink, Ende-Taste)
+      // komplett ueberspringt, versteckt, bis man zurueckscrollt.
+      { threshold: 0, rootMargin: '100000px 0px 0px 0px' },
+    );
+
+    // Erst alle Positionen lesen, dann schreiben: so berechnet der Browser
+    // das Layout nur einmal statt einmal pro Element.
+    const below = [...document.querySelectorAll<HTMLElement>('[data-reveal]')].filter(
+      (el) => el.getBoundingClientRect().top > window.innerHeight,
+    );
+    for (const el of below) {
+      el.dataset.reveal = 'pending';
+      observer.observe(el);
+    }
+  }
+</script>

@@ -1,0 +1,27 @@
+---
+interface Props {
+  /**
+   * Wo im Lauf (in Sekunden, 0 bis 9) der Glanz beim ersten Bild steht.
+   * Unterschiedliche Werte halten die Trenner aus dem Gleichschritt.
+   */
+  start?: number;
+}
+
+const { start = 2.5 } = Astro.props;
+---
+
+{/* Der Lichtstrich als durchgehendes Motiv zwischen den Sektionen: eine
+    ruhende Trennlinie, ueber die ein Glanz wandert. Der Startpunkt wird in
+    global.css zur negativen Verzoegerung, der Glanz ist also ab dem ersten
+    Bild unterwegs. */}
+<div
+  aria-hidden="true"
+  class="relative mx-auto h-0.5 max-w-[1280px] overflow-hidden"
+>
+  <div class="absolute inset-x-0 top-0 h-px bg-surface-2"></div>
+  <div
+    class="light-beam light-sweep absolute top-0 left-0 h-0.5 w-[55%]"
+    style={`--sweep-duration:9s;--sweep-start:${start}s`}
+  >
+  </div>
+</div>

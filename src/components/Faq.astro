@@ -1,0 +1,75 @@
+---
+import Reveal from './Reveal.astro';
+import type { Faq } from '../data/site';
+
+interface Props {
+  items: Faq[];
+  title?: string;
+}
+
+const { items, title = 'Häufige Fragen' } = Astro.props;
+---
+
+{/* Jede Frage ist ein natives <details>: ohne JavaScript bedienbar, per
+    Tastatur erreichbar, und Suchmaschinen lesen die zugeklappten Antworten
+    mit, weil sie im HTML stehen. */}
+<section
+  id="fragen"
+  aria-labelledby="fragen-titel"
+  class="mx-auto flex max-w-[1280px] flex-col gap-10 px-5 py-20 sm:px-8 lg:flex-row lg:gap-16 lg:px-12 lg:py-25"
+>
+  <div class="lg:w-[360px] lg:shrink-0">
+    <p class="mb-3.5 text-[13px] font-bold tracking-[0.08em] uppercase text-accent">
+      Fragen
+    </p>
+    <Reveal>
+      <h2
+        id="fragen-titel"
+        class="mb-4 text-[clamp(1.75rem,3.5vw,2.625rem)] font-extrabold tracking-[-0.02em] text-white"
+      >
+        {title}
+      </h2>
+      <p class="text-base leading-relaxed text-body">
+        Ihre Frage ist nicht dabei? Stellen Sie sie im Erstgespräch oder per
+        E-Mail.
+      </p>
+    </Reveal>
+  </div>
+
+  <Reveal class="min-w-0 lg:flex-1">
+    <ul class="border-t border-surface-2">
+      {
+        items.map((item) => (
+          <li class="border-b border-surface-2">
+            <details class="group">
+              <summary class="flex cursor-pointer list-none items-start justify-between gap-6 py-5 text-[17px] font-semibold text-white transition-colors hover:text-accent-soft [&::-webkit-details-marker]:hidden">
+                {item.question}
+                {/* Plus, das sich beim Aufklappen zum Kreuz dreht. Es zeigt
+                    nur den Zustand; den liest der Screenreader schon aus
+                    <details>. */}
+                <span
+                  aria-hidden="true"
+                  class="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full border border-surface-2 text-accent transition-transform duration-200 group-open:rotate-45"
+                >
+                  <svg
+                    class="size-3"
+                    viewBox="0 0 12 12"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  >
+                    <path d="M6 1v10M1 6h10" />
+                  </svg>
+                </span>
+              </summary>
+              <p class="max-w-[680px] pb-6 text-[15px] leading-relaxed text-body">
+                {item.answer}
+              </p>
+            </details>
+          </li>
+        ))
+      }
+    </ul>
+  </Reveal>
+</section>

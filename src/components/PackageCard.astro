@@ -1,0 +1,58 @@
+---
+import { features, type Package } from '../data/site';
+
+interface Props {
+  pkg: Package;
+  /** Steht statt eines Preises, wenn das Paket keinen Preis auf der Seite hat. */
+  priceFallback?: string;
+  /** Rahmen im Akzent, fuer das Paket, das die Seite in den Vordergrund stellt. */
+  highlight?: boolean;
+}
+
+const { pkg, priceFallback, highlight = false } = Astro.props;
+const price = features.showPricing ? pkg.price : undefined;
+---
+
+{/* Ein Paket im Wortlaut des Angebots: Name, Preis, dann die Punkte als
+    Liste. Website-Pakete und Wartung nutzen dieselbe Karte, damit gleiche
+    Dinge auf der Seite gleich aussehen. */}
+<div
+  class:list={[
+    'flex h-full w-full flex-col rounded-2xl border bg-surface p-7 sm:p-9',
+    highlight ? 'border-accent' : 'border-surface-2',
+  ]}
+>
+  <h3 class="text-[21px] font-bold text-white">{pkg.name}</h3>
+  {
+    price ? (
+      <p class="mt-1 text-[26px] leading-tight font-extrabold text-accent">{price}</p>
+    ) : (
+      priceFallback && <p class="mt-1.5 text-[15px] font-semibold text-body">{priceFallback}</p>
+    )
+  }
+
+  <div class="mt-6 border-t border-surface-2 pt-6">
+    {pkg.lead && <p class="mb-3 text-[15px] font-semibold text-white">{pkg.lead}</p>}
+    <ul class="flex flex-col gap-3">
+      {
+        pkg.points.map((point) => (
+          <li class="flex gap-3 text-[15px] leading-relaxed text-body">
+            <svg
+              class="mt-1 size-4 shrink-0 text-accent"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M4 12.5 9.5 18 20 6" />
+            </svg>
+            <span>{point}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</div>

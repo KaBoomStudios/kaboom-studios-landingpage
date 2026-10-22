@@ -1,0 +1,115 @@
+---
+import { Picture } from 'astro:assets';
+import portrait from '../assets/portrait.jpg';
+import BookingButton from './BookingButton.astro';
+import { booking, callTexts, hero, site } from '../data/site';
+---
+
+{/* Die Lichtebene liegt auf der vollen Breite des Fensters und nicht im
+    Inhaltsbereich. Sonst endeten die Striche auf breiten Bildschirmen hart
+    an dessen Kante statt am Fensterrand. */}
+<div class="relative overflow-hidden">
+  {/* Lichtstimmung des Hero: ein weicher Schein plus zwei Lichtstriche, die
+      in unterschiedlichem Takt durchs Bild ziehen. Rein dekorativ.
+      --sweep-start legt fest, wo im Lauf jeder Strich beim ersten Bild steht:
+      beide sind dann schon sichtbar und in Bewegung, aber nicht im
+      Gleichschritt. Werte und Animation stehen in global.css. Die Neigung
+      im transform gilt fuer den Stillstand bei reduzierter Bewegung, in
+      Bewegung setzt die Animation ihr eigenes transform. */}
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+    <div class="light-glow absolute -top-[10%] -left-[10%] h-[60%] w-[70%]"></div>
+    <div
+      class="light-beam light-sweep absolute top-[8%] left-0 h-0.5 w-[140%] [transform:translateX(-25%)_rotate(-10deg)]"
+      style="--sweep-duration:7s;--sweep-start:1s"
+    >
+    </div>
+    <div
+      class="light-beam-thin light-sweep absolute top-[55%] left-0 h-px w-[140%] [transform:translateX(-25%)_rotate(-10deg)]"
+      style="--sweep-duration:9s;--sweep-start:3s"
+    >
+    </div>
+  </div>
+
+  <section
+    class="relative mx-auto flex max-w-[1360px] flex-col items-start gap-12 px-5 pt-16 pb-20 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:gap-16 lg:px-12 lg:pt-30 lg:pb-25"
+  >
+    <div class="relative z-10 min-w-0 lg:flex-6">
+      <p
+        class="mb-7 inline-flex items-center gap-2 rounded-full border border-surface-2 bg-surface px-4 py-1.5"
+      >
+        <span
+          class="size-1.5 rounded-full bg-accent shadow-[0_0_8px_1px_var(--color-accent)]"
+          aria-hidden="true"></span>
+        <span class="text-[13px] font-semibold tracking-[0.02em] text-body">
+          {site.tagline}
+        </span>
+      </p>
+
+      <h1
+        class="mb-7 text-[clamp(2.5rem,5vw,4.25rem)] leading-[1.05] font-extrabold tracking-[-0.03em] text-white"
+      >
+        {hero.headline}
+      </h1>
+
+      <p class="mb-10 max-w-[560px] text-[19px] leading-relaxed text-body">
+        {hero.subline}
+      </p>
+
+      <div class="flex flex-wrap items-center gap-4">
+        <BookingButton />
+        <a
+          href="#leistungen"
+          class="inline-flex items-center rounded-full border border-surface-2 px-8 py-4 text-base font-semibold text-white transition-colors hover:border-accent"
+        >
+          Leistungen ansehen
+        </a>
+      </div>
+      {/* Beantwortet direkt am Button die Fragen, die vor einem Klick
+          zoegern lassen: was es kostet, wie lange es dauert, wie es ablaeuft. */}
+      <p class="mt-5 flex items-center gap-2 text-sm text-muted">
+        <svg
+          class="size-4 shrink-0 text-accent"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M4 12.5 9.5 18 20 6"></path>
+        </svg>
+        Kostenlos, {booking.durationMinutes} Minuten, {callTexts.hint}.
+      </p>
+    </div>
+
+    <div class="relative z-10 w-full max-w-[340px] self-center lg:w-[340px] lg:shrink-0">
+      <div
+        class="rounded-3xl p-1.5"
+        style="background:linear-gradient(160deg, rgba(16,185,129,0.5), rgba(31,41,55,0.2))"
+      >
+        {/* Feste Abmessungen und eager laden: das Portrait ist im Hero der
+            LCP-Kandidat und darf kein Layout-Shift ausloesen. */}
+        <Picture
+          src={portrait}
+          alt={`Portrait von ${site.owner}`}
+          formats={['avif', 'webp']}
+          fallbackFormat="jpeg"
+          width={680}
+          height={800}
+          widths={[340, 680]}
+          sizes="340px"
+          loading="eager"
+          fetchpriority="high"
+          class="block h-100 w-full rounded-[20px] object-cover contrast-105"
+        />
+      </div>
+      <p class="mt-4 text-center">
+        <span class="block text-base font-bold text-white">{site.owner}</span>
+        <span class="block text-[13px] text-muted">
+          {hero.portraitCaption}
+        </span>
+      </p>
+    </div>
+  </section>
+</div>

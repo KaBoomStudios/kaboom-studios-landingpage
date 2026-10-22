@@ -1,0 +1,90 @@
+---
+import Reveal from './Reveal.astro';
+import BookingButton from './BookingButton.astro';
+import { booking, callTexts, contact } from '../data/site';
+
+interface Props {
+  /** Die Leistungsseiten setzen eine Ueberschrift, die zu ihrem Thema passt. */
+  title?: string;
+}
+
+const { title = 'Lassen Sie uns über Ihre Website sprechen' } = Astro.props;
+
+// Die Adresse bekommt vor dem @ eine erlaubte Umbruchstelle, damit sie auf
+// schmalen Displays sauber zweizeilig laeuft statt aus der Karte zu ragen.
+const atIndex = contact.email.indexOf('@');
+const emailLocal = contact.email.slice(0, atIndex);
+const emailDomain = contact.email.slice(atIndex);
+
+// Kein Kontaktformular: die Seite wird als statische Dateien ausgeliefert,
+// es gibt also keinen Server, der Nachrichten entgegennimmt. Ein Formular,
+// das nichts verschickt, waere schlimmer als keins.
+---
+
+<section
+  id="kontakt"
+  aria-labelledby="kontakt-titel"
+  class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+>
+  <div
+    class="relative flex flex-col gap-12 overflow-hidden rounded-3xl border border-surface-2 bg-surface p-8 sm:p-12 lg:flex-row lg:gap-16 lg:p-16"
+  >
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute -top-[30%] -right-[10%] size-100 rounded-full"
+      style="background:radial-gradient(circle, rgba(16,185,129,0.14), transparent 70%)"
+    >
+    </div>
+
+    <div class="relative z-10 lg:flex-1">
+      <p class="mb-3.5 text-[13px] font-bold tracking-[0.08em] uppercase text-accent">
+        Kontakt
+      </p>
+      <Reveal>
+        <h2
+          id="kontakt-titel"
+          class="mb-5 text-[clamp(1.625rem,3vw,2.25rem)] font-extrabold tracking-[-0.02em] text-white"
+        >
+          {title}
+        </h2>
+        <p class="max-w-[420px] text-base leading-relaxed text-body">
+          Das Erstgespräch dauert {booking.durationMinutes} Minuten und ist
+          kostenlos. {callTexts.modes} Haben Sie schon eine Website,
+          nenne ich Ihnen dabei die drei wichtigsten Punkte, die mir
+          auffallen.
+        </p>
+      </Reveal>
+    </div>
+
+    {/* Zwei Wege, beide ohne Telefonnummer: der Buchungsbutton (oder, solange
+        kein Buchungslink eingetragen ist, eine vorbereitete E-Mail) und die
+        Adresse selbst. Die Adresse bleibt sichtbar, die CI prueft das. */}
+    <div class="relative z-10 flex flex-col items-start gap-5 lg:flex-1">
+      <BookingButton />
+      <p class="text-base leading-relaxed text-body">
+        Lieber schreiben? {contact.replyNote}
+      </p>
+      <a
+        href={contact.emailHref}
+        class="inline-flex max-w-full items-center gap-3 text-lg font-semibold wrap-anywhere text-accent transition-colors hover:text-accent-soft"
+      >
+        <svg
+          class="size-5 shrink-0"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+          <path d="m2.5 6.5 8.4 5.9a2 2 0 0 0 2.2 0l8.4-5.9"></path>
+        </svg>
+        <span class="min-w-0">
+          <span class="sr-only">E-Mail schreiben an: </span>{emailLocal}<wbr />{emailDomain}
+        </span>
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,75 @@
+---
+import Reveal from './Reveal.astro';
+import { steps as defaultSteps, type Step } from '../data/site';
+
+interface Props {
+  /** Ueberschrift der Sektion. Die Leistungsseiten koennen eine eigene setzen. */
+  title?: string;
+  /** Kurzer Text unter der Ueberschrift, optional. */
+  intro?: string;
+  /**
+   * Schritte der Zeitleiste. Ohne Angabe der allgemeine Ablauf einer
+   * Zusammenarbeit; Leistungen mit eigenem Ablauf (Website-Check,
+   * Automatisierung) geben ihre Schritte aus site.ts mit.
+   */
+  steps?: Step[];
+}
+
+const { title = 'So läuft die Zusammenarbeit', intro, steps = defaultSteps } = Astro.props;
+---
+
+<section
+  id="ablauf"
+  aria-labelledby="ablauf-titel"
+  class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+>
+  <div class="mb-14 max-w-[640px]">
+    <p class="mb-3.5 text-[13px] font-bold tracking-[0.08em] uppercase text-accent">
+      Ablauf
+    </p>
+    <Reveal>
+      <h2
+        id="ablauf-titel"
+        class="mb-4 text-[clamp(1.75rem,3.5vw,2.625rem)] font-extrabold tracking-[-0.02em] text-white"
+      >
+        {title}
+      </h2>
+      {intro && <p class="text-base leading-relaxed text-body">{intro}</p>}
+    </Reveal>
+  </div>
+
+  {/* Zeitleiste: auf dem Handy senkrecht links, ab lg waagerecht durch die
+      Nummern. Die Linie ist ein eigenes Element hinter den Nummern; die
+      Nummern haben den Seitenhintergrund und decken sie dort ab. Die Linie
+      beginnt im Akzent und laeuft zum Ende hin aus. */}
+  <div class="relative">
+    <div
+      aria-hidden="true"
+      class="absolute top-5 bottom-0 left-5 w-px bg-linear-to-b from-accent via-accent/35 to-surface-2 lg:top-5 lg:right-0 lg:bottom-auto lg:left-0 lg:h-px lg:w-auto lg:bg-linear-to-r"
+    >
+    </div>
+
+    <ol class="relative grid gap-10 lg:grid-cols-4 lg:gap-8">
+      {
+        steps.map((step, i) => (
+          <li class="relative pl-16 lg:pl-0">
+            {/* Die Nummer steht ausserhalb des Reveal-Wrappers: dessen
+                transform waehrend der Einblendung wuerde sonst ihre absolute
+                Position verschieben. Sie bleibt als Halt auf der Linie
+                einfach stehen. */}
+            <p class="absolute top-0 left-0 grid size-10 place-items-center rounded-full border border-accent bg-ink text-[15px] font-extrabold text-accent lg:static lg:mb-6">
+              <span class="sr-only">Schritt </span>
+              {i + 1}
+            </p>
+            <Reveal delay={i * 100}>
+              <h3 class="mb-3 pt-1.5 text-[19px] font-bold text-white lg:pt-0">
+                {step.title}
+              </h3>
+              <p class="text-[15px] leading-relaxed text-body">{step.text}</p>
+            </Reveal>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>

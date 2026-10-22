@@ -1,0 +1,89 @@
+---
+import BookingButton from './BookingButton.astro';
+import { site, navLinks } from '../data/site';
+
+// Markiert die aktuelle Seite fuer Screenreader (aria-current) und optisch.
+// Die Adressen in navLinks enden wie Astro.url.pathname mit einem Schraegstrich
+// (trailingSlash: 'always'), deshalb reicht ein direkter Vergleich.
+const current = Astro.url.pathname;
+const isCurrent = (href: string) => href === current;
+---
+
+<header
+  class="sticky top-0 z-50 border-b border-surface-2 bg-ink/75 backdrop-blur-xl"
+>
+  <nav
+    aria-label="Hauptnavigation"
+    class="mx-auto flex max-w-[1360px] items-center justify-between gap-6 px-5 py-4 sm:px-8 lg:px-12"
+  >
+    <a
+      href="/"
+      class="flex shrink-0 items-center gap-2.5 text-white"
+      aria-label={`${site.name}, zur Startseite`}
+    >
+      <span
+        class="size-3 rounded-[3px] bg-accent shadow-[0_0_16px_2px_var(--color-accent)]"
+        aria-hidden="true"></span>
+      <span class="text-[19px] font-extrabold tracking-[-0.02em]">{site.name}</span>
+    </a>
+
+    {/* Ab lg die volle Leiste. Vier Eintraege plus Button passen darunter
+        nicht sauber in eine Zeile. */}
+    <div class="hidden items-center gap-8 lg:flex">
+      <ul class="flex items-center gap-8">
+        {
+          navLinks.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                aria-current={isCurrent(link.href) ? 'page' : undefined}
+                class="text-[15px] font-medium text-body transition-colors hover:text-white aria-[current=page]:text-white"
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <BookingButton size="sm" />
+    </div>
+
+    {/* Darunter ein natives <details> statt eines JS-Menues: es ist ohne
+        JavaScript bedienbar, per Tastatur erreichbar und bringt den
+        Auf-/Zu-Zustand von Haus aus mit. */}
+    <details class="group relative lg:hidden">
+      <summary
+        class="flex cursor-pointer list-none items-center gap-2 rounded-full border border-surface-2 px-4 py-2 text-sm font-semibold text-white [&::-webkit-details-marker]:hidden"
+      >
+        <span class="grid size-4 gap-1 group-open:hidden" aria-hidden="true">
+          <span class="h-0.5 w-full rounded bg-accent"></span>
+          <span class="h-0.5 w-full rounded bg-accent"></span>
+          <span class="h-0.5 w-full rounded bg-accent"></span>
+        </span>
+        <span class="hidden group-open:inline" aria-hidden="true">✕</span>
+        Menü
+      </summary>
+
+      <div
+        class="absolute right-0 z-50 mt-3 flex w-64 flex-col gap-1 rounded-2xl border border-surface-2 bg-surface p-2 shadow-2xl shadow-black/50"
+      >
+        <ul class="flex flex-col gap-1">
+          {
+            navLinks.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  aria-current={isCurrent(link.href) ? 'page' : undefined}
+                  class="block rounded-xl px-4 py-3 text-[15px] font-medium text-body transition-colors hover:bg-surface-2 hover:text-white aria-[current=page]:bg-surface-2 aria-[current=page]:text-white"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <BookingButton size="menu" class="mt-1" />
+      </div>
+    </details>
+  </nav>
+</header>

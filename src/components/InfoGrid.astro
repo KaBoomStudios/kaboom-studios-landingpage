@@ -1,0 +1,54 @@
+---
+import Reveal from './Reveal.astro';
+
+export type InfoItem = { title: string; text: string };
+
+interface Props {
+  items: InfoItem[];
+  /**
+   * Nummeriert die Karten. Nur dort einschalten, wo die Nummern etwas
+   * bedeuten, etwa weil sie der Gliederung des Berichts folgen.
+   */
+  numbered?: boolean;
+}
+
+const { items, numbered = false } = Astro.props;
+---
+
+<ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+  {
+    items.map((item, i) => (
+      <li class="flex">
+        <Reveal delay={(i % 3) * 100} class="flex w-full">
+          <div class="flex w-full flex-col gap-3 rounded-2xl border border-surface-2 bg-surface p-7">
+            <p
+              aria-hidden={numbered ? undefined : 'true'}
+              class:list={[
+                'grid size-9 place-items-center rounded-[10px] bg-surface-2 text-accent',
+                { 'text-[15px] font-extrabold': numbered },
+              ]}
+            >
+              {numbered ? (
+                i + 1
+              ) : (
+                <svg
+                  class="size-4.5"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="M4 12.5 9.5 18 20 6" />
+                </svg>
+              )}
+            </p>
+            <h3 class="text-[18px] font-bold text-white">{item.title}</h3>
+            <p class="text-[15px] leading-relaxed text-body">{item.text}</p>
+          </div>
+        </Reveal>
+      </li>
+    ))
+  }
+</ul>

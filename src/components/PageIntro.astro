@@ -1,0 +1,98 @@
+---
+import BookingButton from './BookingButton.astro';
+import { booking, callTexts, features, pricing } from '../data/site';
+
+interface Props {
+  /** Kurze Zeile ueber der H1, nennt das Thema der Seite. */
+  eyebrow: string;
+  /** Die einzige H1 der Seite. */
+  title: string;
+  lede: string;
+  price?: string | null;
+  priceNote?: string;
+  /** Kurze, belegbare Angaben zur Leistung, erscheinen als Liste in der Preiskarte. */
+  facts: string[];
+}
+
+const { eyebrow, title, lede, price, priceNote, facts } = Astro.props;
+const showPrice = features.showPricing && Boolean(price);
+---
+
+{/* Kopf der Leistungsseiten. Die Preiskarte beantwortet die erste Frage
+    (was kostet das) sofort und trennt sichtbar zwischen der bezahlten
+    Leistung und dem kostenlosen Erstgespraech als erstem Schritt. Das
+    Lichtmotiv ist dasselbe wie im Hero, nur mit einem Strich. */}
+<div class="relative overflow-hidden">
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+    <div class="light-glow absolute -top-[20%] -left-[10%] h-[80%] w-[60%]"></div>
+    <div
+      class="light-beam light-sweep absolute top-[30%] left-0 h-0.5 w-[140%] [transform:translateX(-25%)_rotate(-10deg)]"
+      style="--sweep-duration:8s;--sweep-start:2s"
+    >
+    </div>
+  </div>
+
+  <div
+    class="relative mx-auto flex max-w-[1280px] flex-col gap-12 px-5 pt-6 pb-20 sm:px-8 lg:flex-row lg:items-start lg:justify-between lg:gap-16 lg:px-12 lg:pt-10 lg:pb-25"
+  >
+    <div class="relative z-10 min-w-0 max-w-[680px] lg:flex-1">
+      <p class="mb-4 text-[13px] font-bold tracking-[0.08em] uppercase text-accent">
+        {eyebrow}
+      </p>
+      <h1
+        class="mb-7 text-[clamp(2.25rem,4.5vw,3.5rem)] leading-[1.08] font-extrabold tracking-[-0.03em] text-white"
+      >
+        {title}
+      </h1>
+      <p class="text-[19px] leading-relaxed text-body">{lede}</p>
+    </div>
+
+    <div
+      class="relative z-10 w-full max-w-[420px] rounded-3xl border border-accent/40 bg-surface p-8 shadow-[0_24px_60px_-24px_rgba(16,185,129,0.35)] lg:w-[380px] lg:shrink-0"
+    >
+      {
+        showPrice && (
+          <>
+            <p class="text-[13px] font-bold tracking-[0.08em] uppercase text-muted">Preis</p>
+            <p class="mt-1 text-[34px] leading-tight font-extrabold text-white">{price}</p>
+            {priceNote && <p class="mt-1 text-[15px] font-medium text-body">{priceNote}</p>}
+            <p class="mt-2 text-[13px] leading-snug text-muted">{pricing.taxNote}</p>
+          </>
+        )
+      }
+
+      <ul class:list={['flex flex-col gap-3', { 'mt-6': showPrice }]}>
+        {
+          facts.map((fact) => (
+            <li class="flex gap-3 text-[15px] leading-relaxed text-body">
+              <svg
+                class="mt-1 size-4 shrink-0 text-accent"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M4 12.5 9.5 18 20 6"></path>
+              </svg>
+              <span>{fact}</span>
+            </li>
+          ))
+        }
+      </ul>
+
+      <div class="mt-7 border-t border-surface-2 pt-7">
+        <p class="mb-4 text-[15px] font-semibold text-white">
+          Erster Schritt: das kostenlose Erstgespräch
+        </p>
+        <BookingButton class="w-full" />
+        <p class="mt-3 text-center text-sm text-muted">
+          {booking.durationMinutes} Minuten, {callTexts.hint}.
+        </p>
+        <slot />
+      </div>
+    </div>
+  </div>
+</div>

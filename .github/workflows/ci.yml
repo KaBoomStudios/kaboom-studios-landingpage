@@ -1,0 +1,151 @@
+name: CI
+
+# Laeuft bei jedem Pull Request auf main. Damit faellt ein kaputter Build vor
+# dem Merge auf und nicht erst beim Veroeffentlichen. main ist geschuetzt und
+# nimmt nur Pull Requests an, bei denen diese Pruefung gruen ist. Nach dem
+# Merge ruft deploy.yml dieselbe Pruefung noch einmal auf, bevor etwas online
+# geht; ein eigener Push-Ausloeser wuerde sie doppelt laufen lassen.
+on:
+  pull_request:
+    branches: [main]
+  # Erlaubt es, den Workflow im Actions-Tab von Hand zu starten.
+  workflow_dispatch:
+  # deploy.yml ruft diese Pruefung vor jedem Veroeffentlichen auf.
+  workflow_call:
+
+permissions:
+  contents: read
+
+# Laeuft schon eine Pruefung fuer denselben Branch, wird sie abgebrochen. Das
+# spart Wartezeit, wenn mehrere Commits kurz hintereinander kommen.
+# github.workflow nennt beim Aufruf aus deploy.yml dessen Namen. Dadurch
+# bekommt die Pruefung im Deploy eine eigene Gruppe und wird nicht von einer
+# gleichzeitigen normalen CI-Pruefung abgebrochen (und umgekehrt).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Typpruefung und Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v7
+
+      - name: Node einrichten
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Abhaengigkeiten installieren
+        # npm ci statt npm install: installiert exakt die Versionen aus dem
+        # package-lock.json und schlaegt fehl, wenn Lockfile und package.json
+        # auseinanderlaufen.
+        run: npm ci
+
+      - name: Typen und Astro-Diagnose pruefen
+        run: npm run check
+
+      - name: Produktions-Build
+        run: npm run build
+
+      - name: Auslieferung kontrollieren
+        # Zusagen, die die Seite einhalten muss und die man beim Bauen leicht
+        # unbemerkt bricht. Geprueft wird das fertige HTML, also genau das,
+        # was ausgeliefert wird.
+        run: |
+          fail=0
+
+          # Sucht in dist/ und legt die gefundenen Dateien in $found ab.
+          # grep endet mit 0 bei Treffer, 1 ohne Treffer und ab 2 bei einem
+          # Fehler. Ein Fehler darf nicht still als "kein Treffer" durchgehen,
+          # deshalb wird der Rueckgabewert geprueft statt mit `|| true`
+          # geschluckt.
+          search() {
+            local rc=0
+            found=$(grep -rlE "$@" dist/) || rc=$?
+            if [ "$rc" -gt 1 ]; then
+              echo "::error::grep ist mit Code $rc abgebrochen, Pruefung nicht moeglich."
+              exit 1
+            fi
+          }
+
+          # 1. Keine Verbindungen zu Google-Servern (DSGVO). Sonst braeuchte
+          #    die Seite einen Cookie-Banner.
+          search -e 'fonts\.(googleapis|gstatic)'
+          if [ -n "$found" ]; then
+            echo "::error::Google-Fonts-Referenz im Build gefunden. Die Schrift muss lokal eingebunden bleiben:"
+            echo "$found"
+            fail=1
+          fi
+
+          # 2. Die Kontaktadresse muss auf der Startseite stehen. Faellt sie
+          #    beim Umbauen heraus und ist kein Buchungslink eingetragen, hat
+          #    die Seite keinen Kontaktweg mehr.
+          if ! grep -qF "kontakt@kaboom-dev.de" dist/index.html; then
+            echo "::error::Kontakt-E-Mail fehlt auf der Startseite."
+            fail=1
+          fi
+
+          # 3. Keine Gedankenstriche im sichtbaren Text, weder als Zeichen
+          #    noch als HTML-Entity. Bindestriche (-) sind davon nicht
+          #    betroffen. Die Zeichen stehen als UTF-8-Bytes (U+2014 und
+          #    U+2013), damit diese Datei selbst frei von Gedankenstrichen
+          #    bleibt.
+          search --include='*.html' \
+            -e $'\xe2\x80\x94' -e $'\xe2\x80\x93' \
+            -e '&[mn]dash;' -e '&#(8211|8212|[xX]0*201[34]);'
+          if [ -n "$found" ]; then
+            echo "::error::Gedankenstrich im ausgelieferten HTML gefunden:"
+            echo "$found"
+            fail=1
+          fi
+
+          # 4. Die Telefonnummer steht nur im Impressum. Ein tel:-Link auf
+          #    einer anderen Seite wuerde Anfragen als unangekuendigte Anrufe
+          #    statt als planbare Termine hereinholen.
+          search --include='*.html' -e "href=[\"']?tel:"
+          tel=$(printf '%s\n' "$found" | awk 'NF && $0 != "dist/impressum/index.html"')
+          if [ -n "$tel" ]; then
+            echo "::error::tel:-Link ausserhalb des Impressums gefunden:"
+            echo "$tel"
+            fail=1
+          fi
+
+          # 5. Jede Seite hat genau eine H1. Mehrere oder keine verwischen
+          #    fuer Suchmaschinen und Screenreader, worum es auf der Seite
+          #    geht. Bricht grep hier ab, zaehlt das als 0 und faellt auf.
+          for page in $(find dist -name '*.html'); do
+            count=$(grep -o '<h1[ >]' "$page" | wc -l)
+            if [ "$count" -ne 1 ]; then
+              echo "::error::$page hat $count H1-Ueberschriften statt genau einer."
+              fail=1
+            fi
+          done
+
+          # 6. Strukturierte Daten (JSON-LD) muessen gueltiges JSON sein. Einen
+          #    kaputten Block verwerfen Suchmaschinen still, ohne Meldung.
+          if ! node -e '
+            const fs = require("fs");
+            const files = process.argv.slice(1);
+            let bad = 0;
+            for (const file of files) {
+              const html = fs.readFileSync(file, "utf8");
+              const re = /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/g;
+              for (const [, json] of html.matchAll(re)) {
+                try { JSON.parse(json); } catch (e) { console.log(file + ": " + e.message); bad = 1; }
+              }
+            }
+            process.exit(bad);
+          ' $(find dist -name '*.html'); then
+            echo "::error::Ungueltiges JSON-LD im ausgelieferten HTML."
+            fail=1
+          fi
+
+          if [ "$fail" -ne 0 ]; then
+            exit 1
+          fi
+          echo "Auslieferung in Ordnung."

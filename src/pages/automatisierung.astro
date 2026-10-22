@@ -1,0 +1,121 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import Reveal from '../components/Reveal.astro';
+import LightDivider from '../components/LightDivider.astro';
+import Ablauf from '../components/Ablauf.astro';
+import Faq from '../components/Faq.astro';
+import CrossLinks from '../components/CrossLinks.astro';
+import Kontakt from '../components/Kontakt.astro';
+import { automationCare, automationSteps, faq, pages, services } from '../data/site';
+import { serviceNode } from '../lib/structured-data';
+
+const page = pages.automatisierung;
+// Ueber die Seite statt ueber die Position im Array: so bleibt die Zuordnung
+// richtig, wenn sich die Reihenfolge der Leistungskarten aendert.
+const service = services.find((s) => s.page === page)!;
+const pageFaq = faq.filter((item) => item.showOn.includes(page));
+
+// Jeder Ablauf als Ausloeser und Ergebnis. Nur Ablaeufe aufnehmen, die
+// tatsaechlich angeboten werden. Die Online-Terminbuchung gehoert nicht
+// hierher: sie ist eine Zusatzleistung zur Website und steht dort.
+const flows = [
+  {
+    title: 'Anfragen sortieren und bestätigen',
+    when: 'Jemand schickt Ihnen eine Anfrage.',
+    then: 'Die Anfrage kommt sortiert bei Ihnen an, und der Kunde bekommt sofort per E-Mail die Bestätigung, dass sie angekommen ist. Sie antworten, wenn Sie Zeit dafür haben.',
+  },
+  {
+    title: 'Terminerinnerung',
+    when: 'Ein Termin steht in Ihrem Online-Kalender.',
+    then: 'Der Kunde bekommt vor dem Termin automatisch eine Erinnerung per E-Mail.',
+  },
+  {
+    title: 'Bitte um Bewertung',
+    when: 'Sie haben einen Auftrag abgeschlossen.',
+    // Nur mit Zustimmung: eine Bitte um Bewertung per E-Mail gilt als
+    // Werbung (BGH, Urteil vom 10.07.2018, VI ZR 225/17). Der Ablauf wird
+    // deshalb so eingerichtet, dass er nur Kunden mit Einwilligung erreicht.
+    then: 'Kunden, die dem zugestimmt haben, bekommen per E-Mail die Bitte um eine Bewertung.',
+  },
+];
+---
+
+<PageLayout
+  title="Automatisierung für Handwerksbetriebe | KaBoom Studios"
+  description="Anfragen sortieren und bestätigen, Terminerinnerung und Bitte um Bewertung per E-Mail: weniger Büroarbeit für Ihren Handwerksbetrieb. Ab 500 €."
+  breadcrumb={page.title}
+  wide
+  structuredData={[serviceNode(service)]}
+>
+  <PageIntro
+    eyebrow="Automatisierung für Handwerksbetriebe"
+    title="Weniger Büroarbeit mit automatischen Abläufen"
+    lede="Anfragen kommen sortiert an und werden sofort bestätigt. Kunden bekommen vor dem Termin eine Erinnerung und nach dem Auftrag die Bitte um eine Bewertung. Das läuft von allein per E-Mail, statt dass Sie es nach Feierabend von Hand erledigen."
+    price={service.price}
+    priceNote={service.priceNote}
+    facts={[
+      'Der Preis gilt für einen Ablauf, mehrere stehen im Angebot',
+      `Die ${automationCare.title} ist Pflicht, damit die Abläufe zuverlässig laufen`,
+      'Gebühren der Dienste zahlen Sie direkt beim Anbieter',
+      'Funktioniert auch mit Ihrer bestehenden Website',
+    ]}
+  />
+
+  <LightDivider start={4} />
+
+  <section
+    aria-labelledby="ablaeufe-titel"
+    class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+  >
+    <SectionHeader eyebrow="Abläufe" title="Was ich für Sie einrichte" id="ablaeufe-titel">
+      <p>
+        Jeder Ablauf startet von allein, sobald etwas passiert. Der Preis
+        {service.price} gilt für einen Ablauf. Welche Ihr Betrieb braucht,
+        klären wir im Erstgespräch.
+      </p>
+    </SectionHeader>
+
+    <ul class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {
+        flows.map((flow, i) => (
+          <li class="flex">
+            <Reveal delay={(i % 3) * 100} class="flex w-full">
+              <div class="flex w-full flex-col rounded-2xl border border-surface-2 bg-surface p-7 sm:p-8">
+                <h3 class="mb-5 text-[19px] font-bold text-white">{flow.title}</h3>
+                {/* Ausloeser und Ergebnis, verbunden durch eine senkrechte
+                    Linie im Akzent: dieselbe Bildsprache wie die Zeitleiste
+                    im Ablauf. Linie und Punkte sind Pseudo-Elemente, weil in
+                    einer <dl> nur dt und dd stehen duerfen. */}
+                <dl class="relative flex flex-col gap-5 pl-7 before:absolute before:top-2 before:bottom-2 before:left-[5px] before:w-px before:bg-linear-to-b before:from-accent before:to-accent/20">
+                  <div>
+                    <dt class="relative text-[13px] font-bold tracking-[0.08em] uppercase text-muted before:absolute before:top-1 before:-left-7 before:size-[11px] before:rounded-full before:border-2 before:border-accent before:bg-surface">
+                      Wenn
+                    </dt>
+                    <dd class="mt-1 text-[15px] leading-relaxed text-white">{flow.when}</dd>
+                  </div>
+                  <div>
+                    <dt class="relative text-[13px] font-bold tracking-[0.08em] uppercase text-accent before:absolute before:top-1 before:-left-7 before:size-[11px] before:rounded-full before:bg-accent before:shadow-[0_0_8px_1px_var(--color-accent)]">
+                      Dann
+                    </dt>
+                    <dd class="mt-1 text-[15px] leading-relaxed text-body">{flow.then}</dd>
+                  </div>
+                </dl>
+              </div>
+            </Reveal>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <LightDivider start={1.5} />
+  <Ablauf title="So kommt die Automatisierung in Ihren Betrieb" steps={automationSteps} />
+  <LightDivider start={6} />
+  <Faq items={pageFaq} />
+  <LightDivider start={3} />
+  <CrossLinks current={page} />
+  <LightDivider start={8} />
+  <Kontakt title="Lassen Sie uns über Ihre Abläufe sprechen" />
+</PageLayout>

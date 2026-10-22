@@ -1,0 +1,54 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Seite nicht gefunden | KaBoom Studios"
+  description="Diese Seite existiert nicht (mehr). Zurück zur Startseite von KaBoom Studios."
+  noindex
+>
+  <Nav />
+  <main
+    id="inhalt"
+    class="relative mx-auto flex max-w-[720px] flex-col items-start overflow-hidden px-5 py-24 sm:px-8 lg:py-32"
+  >
+    <div
+      aria-hidden="true"
+      class="light-beam light-sweep pointer-events-none absolute top-[18%] left-0 h-0.5 w-[140%]"
+      style="--sweep-duration:7s;--sweep-start:1s"
+    >
+    </div>
+
+    <p
+      class="relative z-10 mb-3.5 text-[13px] font-bold tracking-[0.08em] uppercase text-accent"
+    >
+      Fehler 404
+    </p>
+    <h1
+      class="relative z-10 mb-6 text-[clamp(2rem,4vw,3rem)] font-extrabold tracking-[-0.02em] text-white"
+    >
+      Diese Seite gibt es nicht.
+    </h1>
+    <p class="relative z-10 mb-10 max-w-[520px] text-base leading-relaxed text-body">
+      Vielleicht hat sich ein Tippfehler in die Adresse geschlichen, oder die
+      Seite ist umgezogen. Von hier kommen Sie direkt weiter:
+    </p>
+    <div class="relative z-10 flex flex-wrap items-center gap-4">
+      <a
+        href="/"
+        class="inline-flex items-center rounded-full bg-accent px-8 py-4 text-base font-bold text-on-accent shadow-[0_0_32px_4px_rgba(16,185,129,0.35)] transition-colors hover:bg-accent-soft"
+      >
+        Zur Startseite
+      </a>
+      <a
+        href="/#leistungen"
+        class="inline-flex items-center rounded-full border border-surface-2 px-8 py-4 text-base font-semibold text-white transition-colors hover:border-accent"
+      >
+        Leistungen ansehen
+      </a>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

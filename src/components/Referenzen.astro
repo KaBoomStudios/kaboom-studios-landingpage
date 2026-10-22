@@ -1,0 +1,48 @@
+---
+import Reveal from './Reveal.astro';
+import { referenzen } from '../data/site';
+
+// Wird nur eingebunden, wenn `showReferenzen` in site.ts wahr ist, also das
+// Flag an ist und mindestens ein echtes Projekt eingetragen wurde. Leere
+// Karten oder "folgt in Kuerze"-Platzhalter zeigt die Seite nicht.
+---
+
+<section
+  id="referenzen"
+  aria-labelledby="referenzen-titel"
+  class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+>
+  <div class="mb-14 max-w-[640px]">
+    <p class="mb-3.5 text-[13px] font-bold tracking-[0.08em] uppercase text-accent">
+      Referenzen
+    </p>
+    <Reveal>
+      <h2
+        id="referenzen-titel"
+        class="text-[clamp(1.75rem,3.5vw,2.625rem)] font-extrabold tracking-[-0.02em] text-white"
+      >
+        Abgeschlossene Projekte
+      </h2>
+    </Reveal>
+  </div>
+
+  <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      referenzen.map((item) => (
+        <li class="flex flex-col gap-3 rounded-2xl border border-surface-2 bg-surface p-8">
+          <h3 class="text-lg font-bold text-white">{item.title}</h3>
+          <p class="flex-1 text-[15px] leading-relaxed text-body">{item.summary}</p>
+          {item.href && (
+            <a
+              href={item.href}
+              rel="noopener"
+              class="self-start text-sm font-semibold text-accent hover:text-accent-soft"
+            >
+              Seite ansehen<span class="sr-only">: {item.title}</span>
+            </a>
+          )}
+        </li>
+      ))
+    }
+  </ul>
+</section>

@@ -1,0 +1,291 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { booking, calls, callTexts, contact, imprint } from '../data/site';
+
+// Der Text ist vom Betreiber freigegeben und wird hier nicht generiert oder
+// eigenmaechtig ergaenzt. Jede inhaltliche Aenderung braucht eine neue
+// Freigabe.
+const sectionClass = 'text-[13px] font-bold tracking-[0.08em] uppercase text-accent';
+const proseClass = 'mt-3 text-base leading-[1.75] text-body';
+const linkClass = 'font-medium text-accent wrap-anywhere hover:text-accent-soft';
+
+// Die Terminbuchung erscheint nur, wenn ein Buchungslink eingetragen ist.
+// Solange der Button eine E-Mail oeffnet, waere der Abschnitt falsch.
+const showBooking = booking.url.length > 0;
+
+// Nummern ergeben sich aus der Reihenfolge, damit sie mit und ohne den
+// Buchungsabschnitt lueckenlos bleiben und Querverweise stimmen.
+const order = [
+  'verantwortlicher',
+  'rechte',
+  'hosting',
+  'kontaktaufnahme',
+  ...(showBooking ? ['terminbuchung'] : []),
+  'gespraeche',
+  'schriftarten',
+  'cookies',
+  'aktualitaet',
+];
+const no = (id: string) => order.indexOf(id) + 1;
+
+// Videogespraeche nur mit eingetragenem Dienst, sonst nur Telefon. Der
+// Absatz zum Dienst nutzt die allgemeinen Saetze der frueher freigegebenen
+// Fassung; was der Dienst mit den Daten macht, kommt aus site.ts.
+const video = calls.video;
+---
+
+<LegalPage
+  title="Datenschutzerklärung"
+  metaTitle="Datenschutzerklärung | KaBoom Studios"
+  description="Informationen zur Verarbeitung personenbezogener Daten auf der Website von KaBoom Studios."
+  placeholder={false}
+>
+  <div class="flex flex-col gap-10">
+    <section aria-labelledby="verantwortlicher">
+      <h2 id="verantwortlicher" class={sectionClass}>
+        {no('verantwortlicher')}. Verantwortlicher
+      </h2>
+      <p class={proseClass}>
+        Verantwortlich für die Datenverarbeitung auf dieser Website ist:
+      </p>
+      <address class="mt-3 text-base leading-[1.75] text-body not-italic">
+        {imprint.name}<br />
+        {imprint.street}<br />
+        {imprint.postalCode}&nbsp;{imprint.city}<br />
+        E-Mail: <a href={contact.emailHref} class={linkClass}>{contact.email}</a>
+      </address>
+    </section>
+
+    <section aria-labelledby="rechte">
+      <h2 id="rechte" class={sectionClass}>{no('rechte')}. Ihre Rechte auf einen Blick</h2>
+      <p class={proseClass}>
+        Sie haben jederzeit das Recht, Auskunft über Ihre bei mir gespeicherten
+        Daten zu erhalten (Art. 15 DSGVO), diese berichtigen (Art. 16 DSGVO)
+        oder löschen zu lassen (Art. 17 DSGVO), deren Verarbeitung einschränken
+        zu lassen (Art. 18 DSGVO), der Verarbeitung zu widersprechen (Art. 21
+        DSGVO) und Ihre Daten in einem übertragbaren Format zu erhalten (Art. 20
+        DSGVO). Zudem haben Sie das Recht, sich bei einer
+        Datenschutz-Aufsichtsbehörde über die Verarbeitung Ihrer Daten zu
+        beschweren. Für mich zuständig ist die Landesbeauftragte für Datenschutz
+        und Informationsfreiheit Nordrhein-Westfalen, Kavalleriestraße 2-4,
+        40213 Düsseldorf, <a
+          href="https://www.ldi.nrw.de"
+          class={linkClass}
+          rel="noopener noreferrer external">www.ldi.nrw.de</a
+        >.
+      </p>
+      {/* Art. 21 Abs. 4 DSGVO verlangt den Hinweis auf das Widerspruchsrecht
+          getrennt von den anderen Informationen, deshalb ein eigener Absatz. */}
+      <p class={proseClass}>
+        <strong class="font-semibold text-white">Widerspruchsrecht:</strong>
+        Verarbeite ich Ihre Daten auf Grundlage meines berechtigten Interesses
+        (Art. 6 Abs. 1 lit. f DSGVO), können Sie dem aus Gründen, die sich aus
+        Ihrer besonderen Situation ergeben, jederzeit widersprechen (Art. 21
+        Abs. 1 DSGVO).
+      </p>
+    </section>
+
+    <section aria-labelledby="hosting">
+      <h2 id="hosting" class={sectionClass}>{no('hosting')}. Hosting und Server-Logfiles</h2>
+      <p class={proseClass}>
+        Diese Website wird über GitHub Pages bereitgestellt, einen Dienst der
+        GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107,
+        USA. Beim Aufruf der Seite verarbeitet GitHub technische Zugriffsdaten,
+        die Ihr Browser übermittelt, insbesondere IP-Adresse, Datum und Uhrzeit
+        des Zugriffs, aufgerufene Seite sowie Browsertyp und Betriebssystem.
+        Diese Daten fallen technisch bedingt an und werden zur sicheren und
+        stabilen Bereitstellung der Website benötigt. Rechtsgrundlage ist mein
+        berechtigtes Interesse an einer funktionierenden und sicheren Website
+        (Art. 6 Abs. 1 lit. f DSGVO).
+      </p>
+      <p class={proseClass}>
+        Nach eigenen Angaben speichert GitHub die IP-Adresse der Besucher aus
+        Sicherheitsgründen. Wie lange, legt GitHub fest. Darauf habe ich keinen
+        Einfluss.
+      </p>
+      <p class={proseClass}>
+        Dabei können Daten in die USA übermittelt werden. GitHub, Inc. ist nach
+        dem EU-US Data Privacy Framework zertifiziert. Für zertifizierte
+        Unternehmen hat die Europäische Kommission mit Beschluss vom 10. Juli
+        2023 ein angemessenes Datenschutzniveau festgestellt (Art. 45 DSGVO).
+        Weitere Informationen finden Sie in der Datenschutzerklärung von GitHub
+        unter <a
+          href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement"
+          class={linkClass}
+          rel="noopener noreferrer external"
+          >https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement</a
+        >.
+      </p>
+    </section>
+
+    <section aria-labelledby="kontaktaufnahme">
+      <h2 id="kontaktaufnahme" class={sectionClass}>
+        {no('kontaktaufnahme')}. Kontaktaufnahme per E-Mail
+      </h2>
+      <p class={proseClass}>
+        Wenn Sie mich per E-Mail kontaktieren, speichere ich Ihre E-Mail-Adresse
+        und alle Angaben aus Ihrer Nachricht, um Ihre Anfrage zu bearbeiten.
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, sofern Ihre Anfrage der
+        Anbahnung eines Vertrags dient, sonst Art. 6 Abs. 1 lit. f DSGVO
+        aufgrund meines berechtigten Interesses an der Bearbeitung Ihrer
+        Anfrage. Außer an meinen E-Mail-Anbieter (siehe unten) gebe ich diese
+        Daten nicht ohne Ihre Einwilligung weiter.
+      </p>
+      {/* Beschreibt das Postfach hinter contact.email. Wechselt Adresse oder
+          Anbieter, muss dieser Absatz mitgeaendert werden. */}
+      <p class={proseClass}>
+        Mein E-Mail-Postfach liegt bei ALL-INKL.COM, Neue Medien Münnich,
+        Inhaber René Münnich, Hauptstraße 68, 02742 Friedersdorf. Der Anbieter
+        speichert Ihre Nachrichten in Rechenzentren in Deutschland und
+        verarbeitet sie in meinem Auftrag. Mit ALL-INKL.COM besteht ein Vertrag
+        zur Auftragsverarbeitung nach Art. 28 DSGVO. Weitere Informationen
+        finden Sie in den Datenschutzinformationen von ALL-INKL.COM unter <a
+          href="https://all-inkl.com/datenschutzinformationen"
+          class={linkClass}
+          rel="noopener noreferrer external">https://all-inkl.com/datenschutzinformationen</a
+        >.
+      </p>
+      <p class={proseClass}>
+        Ihre Anfrage lösche ich, sobald sie erledigt ist, spätestens sechs
+        Monate nach dem letzten Kontakt. Entsteht daraus ein Auftrag, bewahre
+        ich die Unterlagen so lange auf, wie gesetzliche Aufbewahrungspflichten
+        es verlangen.
+      </p>
+    </section>
+
+    {
+      showBooking && (
+        <section aria-labelledby="terminbuchung">
+          <h2 id="terminbuchung" class={sectionClass}>
+            {no('terminbuchung')}. Terminbuchung über zeeg
+          </h2>
+          <p class={proseClass}>
+            Das Erstgespräch können Sie online buchen. Dafür nutze ich den Dienst
+            zeeg der Zeeg GmbH, Friedrichstraße 155, 10117 Berlin. Diese Website
+            lädt keine Inhalte von zeeg. Erst wenn Sie auf "{booking.label}"
+            klicken, gelangen Sie auf die Buchungsseite von zeeg.
+          </p>
+          {/* Beschreibt genau die Felder des Buchungsformulars. Kommt ein Feld
+              dazu oder faellt eines weg, muss dieser Absatz mitgeaendert werden.
+              Die Fassung mit Video ist noch nicht freigegeben, sie wird vor dem
+              Eintragen eines Videodienstes gegen das Formular geprueft. */}
+          <p class={proseClass}>
+            {video
+              ? 'Bei der Buchung werden Ihr Name, Ihre E-Mail-Adresse und der gewählte Termin verarbeitet, bei einem Telefonat auch die Telefonnummer, unter der ich Sie anrufen soll.'
+              : 'Bei der Buchung werden Ihr Name, Ihre E-Mail-Adresse, Ihre Telefonnummer und der gewählte Termin verarbeitet. Die Telefonnummer brauche ich, weil ich Sie zur gebuchten Zeit anrufe.'}{' '}
+            Die Adresse Ihrer Website können Sie freiwillig angeben. Dann sehe ich
+            sie mir für den Kurz-Check vor dem Gespräch an. Zweck ist die
+            Vereinbarung und Durchführung des Gesprächs. Rechtsgrundlage ist Art.
+            6 Abs. 1 lit. b DSGVO, weil die Buchung auf Ihre Anfrage hin einem
+            möglichen Vertrag vorausgeht.
+          </p>
+          <p class={proseClass}>
+            zeeg schickt Ihnen per E-Mail eine Bestätigung und, wenn der Termin
+            abgesagt wird, eine Absage. Antworten Sie auf eine dieser E-Mails,
+            kommt Ihre Nachricht in meinem Postfach an (siehe Abschnitt{' '}
+            {no('kontaktaufnahme')}).
+          </p>
+          {/* Speicherort und Versanddienst laut Anhang des Vertrags zur
+              Auftragsverarbeitung mit zeeg. Cloudflare liefert die Buchungsseite
+              aus (Antwortkopf "Server: cloudflare") und ist in der
+              Datenschutzerklaerung von zeeg genannt. */}
+          <p class={proseClass}>
+            zeeg verarbeitet diese Daten in meinem Auftrag. Mit der Zeeg GmbH
+            besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.
+            Gespeichert werden die Daten auf Servern der Telekom Deutschland GmbH,
+            Landgrabenweg 151, 53227 Bonn, in Deutschland und den Niederlanden.
+            Die E-Mails zur Buchung verschickt zeeg über den Dienst Brevo der
+            Sendinblue GmbH, Köpenicker Straße 126, 10179 Berlin, mit Servern in
+            Deutschland.
+          </p>
+          <p class={proseClass}>
+            Die Buchungsseite liefert zeeg über das Netzwerk der Cloudflare, Inc.,
+            101 Townsend St., San Francisco, CA 94107, USA, aus. Dabei kann
+            Cloudflare technische Daten wie Ihre IP-Adresse auch außerhalb der EU
+            verarbeiten. Nach Angaben von zeeg nimmt Cloudflare am EU-US Data
+            Privacy Framework teil. Für teilnehmende Unternehmen hat die
+            Europäische Kommission mit Beschluss vom 10. Juli 2023 ein angemessenes
+            Datenschutzniveau festgestellt (Art. 45 DSGVO).
+          </p>
+          <p class={proseClass}>
+            Die Termindaten lösche ich spätestens sechs Monate nach dem letzten
+            Kontakt, sofern daraus kein Auftrag entsteht. Weitere Informationen
+            finden Sie in der Datenschutzerklärung von zeeg unter <a
+              href="https://zeeg.me/de/legal/privacy"
+              class={linkClass}
+              rel="noopener noreferrer external">https://zeeg.me/de/legal/privacy</a
+            >.
+          </p>
+        </section>
+      )
+    }
+
+    <section aria-labelledby="gespraeche">
+      <h2 id="gespraeche" class={sectionClass}>
+        {no('gespraeche')}. Gespräche {callTexts.via}
+      </h2>
+      {
+        video ? (
+          <>
+            <p class={proseClass}>
+              Das Erstgespräch und spätere Abstimmungen führe ich als
+              Videogespräch oder als Telefonat, je nachdem, was Sie wählen. Ich
+              zeichne Gespräche nicht auf.
+            </p>
+            <p class={proseClass}>
+              Für Videogespräche nutze ich {video.name}, einen Dienst der{' '}
+              {video.company}. Dabei werden Ihr angezeigter Name, gegebenenfalls
+              Ihre E-Mail-Adresse, Ton und, wenn Sie die Kamera einschalten, Bild
+              sowie technische Verbindungsdaten wie Ihre IP-Adresse verarbeitet.{' '}
+              {video.processing}
+            </p>
+            <p class={proseClass}>
+              Wählen Sie ein Telefonat, rufe ich Sie zur vereinbarten Zeit unter
+              der Nummer an, die Sie mir genannt haben. Die Nummer nutze ich nur
+              für die Abstimmung zu Ihrer Anfrage.
+            </p>
+            <p class={proseClass}>Rechtsgrundlage ist jeweils Art. 6 Abs. 1 lit. b DSGVO.</p>
+          </>
+        ) : (
+          <>
+            <p class={proseClass}>
+              Das Erstgespräch und spätere Abstimmungen führe ich als Telefonat.
+              Ich rufe Sie zur vereinbarten Zeit unter der Nummer an, die Sie mir
+              genannt haben. Die Nummer nutze ich nur für die Abstimmung zu Ihrer
+              Anfrage. Ich zeichne Gespräche nicht auf.
+            </p>
+            <p class={proseClass}>Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.</p>
+          </>
+        )
+      }
+    </section>
+
+    <section aria-labelledby="schriftarten">
+      <h2 id="schriftarten" class={sectionClass}>{no('schriftarten')}. Schriftarten</h2>
+      <p class={proseClass}>
+        Diese Website nutzt die Schriftart Inter, die lokal eingebunden ist. Es
+        findet dabei keine Verbindung zu externen Anbietern wie Google Fonts
+        statt, es werden also keine Daten von Ihnen an Dritte übermittelt.
+      </p>
+    </section>
+
+    <section aria-labelledby="cookies">
+      <h2 id="cookies" class={sectionClass}>{no('cookies')}. Cookies und Tracking</h2>
+      <p class={proseClass}>
+        Diese Website setzt keine Cookies ein und verwendet keine Analyse- oder
+        Trackingdienste.
+      </p>
+    </section>
+
+    <section aria-labelledby="aktualitaet">
+      <h2 id="aktualitaet" class={sectionClass}>
+        {no('aktualitaet')}. Aktualität dieser Datenschutzerklärung
+      </h2>
+      <p class={proseClass}>
+        Diese Datenschutzerklärung kann bei Weiterentwicklung der Website
+        angepasst werden. Es gilt jeweils die aktuell auf dieser Seite
+        veröffentlichte Fassung.
+      </p>
+    </section>
+  </div>
+</LegalPage>

@@ -1,0 +1,23 @@
+# Build-Ausgabe
+dist/
+.astro/
+
+# Abhaengigkeiten
+node_modules/
+
+# Umgebung
+.env
+.env.production
+
+# Claude-Code-Einstellungen. Sie erlauben Befehle ohne Rueckfrage und gelten
+# nur fuer den eigenen Rechner, nicht fuer jeden, der das Repository oeffnet.
+.claude/
+
+# Lokale Arbeitsanweisungen fuer Claude Code. Enthalten Planungsstand und
+# Rechner-spezifische Angaben und gehoeren deshalb nicht ins Repository.
+CLAUDE.md
+
+# Betriebssystem / Editor
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,72 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { pages } from '../data/site';
+import { breadcrumbNode, type Node } from '../lib/structured-data';
+
+interface Props {
+  /** Meta-Title, erscheint im Browser-Tab und in den Suchergebnissen. */
+  title: string;
+  description: string;
+  /** Name der Seite in den Brotkrumen, ueblicherweise `pages.x.title`. */
+  breadcrumb: string;
+  noindex?: boolean;
+  /**
+   * Der Inhalt bringt seine Abschnitte mit eigenem Rahmen mit, wie die
+   * Sektionen der Startseite. Ohne `wide` steht er in einem gemeinsamen
+   * Rahmen, passend fuer Textseiten wie Impressum und Datenschutz.
+   */
+  wide?: boolean;
+  /** Weitere strukturierte Daten; die Brotkrumen ergaenzt das Layout selbst. */
+  structuredData?: Node[];
+}
+
+const {
+  title,
+  description,
+  breadcrumb,
+  noindex,
+  wide = false,
+  structuredData = [],
+} = Astro.props;
+
+// Die Seitenstruktur ist flach: jede Unterseite haengt direkt an der
+// Startseite. Mehr Ebenen braucht es erst, wenn z. B. Ratgeber-Artikel
+// dazukommen; dann bekommt dieses Layout eine optionale Zwischenebene.
+const crumbs = [{ label: pages.home.title, href: pages.home.href }, { label: breadcrumb }];
+
+// Die sichtbaren Brotkrumen und die strukturierten Daten entstehen aus
+// derselben Liste. So kann Google nichts anzeigen, was auf der Seite fehlt.
+const nodes = [...structuredData, breadcrumbNode(crumbs)];
+
+const frame = 'mx-auto w-full max-w-[1280px] px-5 sm:px-8 lg:px-12';
+---
+
+{/* Rahmen fuer alle Unterseiten: Navigation, Brotkrumen, Inhalt, Footer.
+    Die Startseite nutzt BaseLayout direkt, weil sie mit einem Hero ueber die
+    volle Breite beginnt und keine Brotkrumen braucht. */}
+<BaseLayout
+  title={title}
+  description={description}
+  noindex={noindex}
+  structuredData={nodes}
+>
+  <Nav />
+  <main id="inhalt">
+    <div class:list={[frame, 'pt-10']}>
+      <Breadcrumbs items={crumbs} />
+    </div>
+    {
+      wide ? (
+        <slot />
+      ) : (
+        <div class:list={[frame, 'pb-20 lg:pb-25']}>
+          <slot />
+        </div>
+      )
+    }
+  </main>
+  <Footer />
+</BaseLayout>

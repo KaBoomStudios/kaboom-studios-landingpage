@@ -1,0 +1,43 @@
+---
+import { hero, site } from '../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Suchmaschinen von rechtlichen Seiten und der 404 fernhalten. */
+  noindex?: boolean;
+}
+
+const { title, description, noindex = false } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site ?? site.url);
+// Die Fehlerseite wird als 404.html ausgeliefert, unter jeder unbekannten
+// Adresse. Ein Canonical wuerde dort auf "/404/" zeigen, eine Adresse, die es
+// nicht gibt. Sie bekommt deshalb weder Canonical noch og:url.
+const isErrorPage = Astro.url.pathname.replace(/\/$/, '') === '/404';
+const ogImage = new URL('/og-image.png', Astro.site ?? site.url);
+// Der Alt-Text gibt wieder, was auf dem Bild steht: Name und Headline der
+// Startseite. Aendert sich die Headline, wird das Bild neu erstellt.
+const ogImageAlt = `${site.name}: ${hero.headline}`;
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+{!isErrorPage && <link rel="canonical" href={canonical.href} />}
+{noindex && <meta name="robots" content="noindex, follow" />}
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={site.locale} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+{!isErrorPage && <meta property="og:url" content={canonical.href} />}
+<meta property="og:image" content={ogImage.href} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={ogImageAlt} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImage.href} />

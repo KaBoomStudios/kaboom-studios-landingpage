@@ -1,0 +1,32 @@
+---
+import SectionHeader from './SectionHeader.astro';
+import ServiceCard from './ServiceCard.astro';
+import { services, type Page } from '../data/site';
+
+interface Props {
+  /** Die aktuelle Seite. Ihre eigene Leistung wird nicht noch einmal verlinkt. */
+  current: Page;
+}
+
+const { current } = Astro.props;
+const others = services.filter((s) => s.page !== current);
+---
+
+{/* Querverweise auf die anderen Leistungen, mit denselben Karten wie auf der
+    Startseite. Interne Links zwischen den Leistungsseiten helfen Besuchern
+    weiter und zeigen Suchmaschinen, wie die Seiten zusammenhaengen. */}
+<section
+  aria-labelledby="weitere-titel"
+  class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+>
+  <SectionHeader eyebrow="Weitere Leistungen" title="Das passt dazu" id="weitere-titel" />
+  <ul class="grid gap-6 sm:grid-cols-2 lg:max-w-[860px]">
+    {
+      others.map((service) => (
+        <li class="flex">
+          <ServiceCard service={service} />
+        </li>
+      ))
+    }
+  </ul>
+</section>

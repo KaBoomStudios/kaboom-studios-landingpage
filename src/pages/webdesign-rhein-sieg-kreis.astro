@@ -1,0 +1,111 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import PageIntro from '../components/PageIntro.astro';
+import SectionHeader from '../components/SectionHeader.astro';
+import InfoGrid from '../components/InfoGrid.astro';
+import LightDivider from '../components/LightDivider.astro';
+import Leistungen from '../components/Leistungen.astro';
+import Faq from '../components/Faq.astro';
+import Kontakt from '../components/Kontakt.astro';
+import { callTexts, faq, imprint, onSite, pages, services, site } from '../data/site';
+
+// Eine Seite fuer die Region statt vieler fast gleicher Seiten pro Ort:
+// Suchmaschinen werten solche Sammlungen als duennen Inhalt. Orte kommen nur
+// vor, wo sie in einem Satz natuerlich hingehoeren.
+const page = pages.rheinSieg;
+const website = services.find((s) => s.page === pages.websites)!;
+const pageFaq = faq.filter((item) => item.showOn.includes(page));
+
+// Was eine Website fuer lokale Suchen mitbringt. Jeder Punkt entspricht
+// einer Leistung aus den Website-Paketen.
+const local = [
+  {
+    title: 'Google-Unternehmensprofil',
+    text: 'Sucht jemand einen Betrieb in der Nähe, zeigt Google neben den Treffern eine Karte mit Unternehmensprofilen. Bei jeder Website lege ich Ihr Profil an oder überarbeite das bestehende und verknüpfe es mit der Website.',
+  },
+  {
+    title: 'Kontakt, Anfahrt und Öffnungszeiten',
+    text: 'Kunden wollen wissen, wo Sie sind und wann sie Sie erreichen. Diese Angaben gehören bei jeder Website dazu, gut lesbar auf dem Handy.',
+  },
+  {
+    title: 'Ausgerichtet auf Gewerk und Ort',
+    text: 'Im Paket Standard richte ich Aufbau und Texte darauf aus, wie Ihre Kunden suchen: nach Ihrem Gewerk und Ihrem Ort.',
+  },
+];
+---
+
+<PageLayout
+  title={`Webdesign im ${site.region} | ${site.name}`}
+  description={`Websites für Handwerksbetriebe und lokale Dienstleister im ${site.region}. Sitz in ${imprint.city}, Abstimmung ${callTexts.via}, Anfahrt inklusive.`}
+  breadcrumb={page.title}
+  wide
+>
+  <PageIntro
+    eyebrow={`Aus ${imprint.city} für die Region`}
+    title={page.title}
+    lede={`Ich baue Websites für Handwerksbetriebe und lokale Dienstleister im ${site.region}. Mein Sitz ist in ${imprint.city}. Abgestimmt wird ${callTexts.via}, einmal pro Projekt komme ich zu Ihnen in den Betrieb.`}
+    price={website.price}
+    priceNote="Website zum Festpreis"
+    facts={[`Sitz in ${imprint.city}`, onSite.remote, onSite.visit, onSite.travel]}
+  />
+
+  <LightDivider start={4} />
+
+  {/* Nur Ueberschrift und Text: der Kopf bringt seinen Abstand nach unten
+      mit, deshalb ist das Polster unten kleiner als bei den anderen Sektionen. */}
+  <section
+    aria-labelledby="vor-ort-titel"
+    class="mx-auto max-w-[1280px] px-5 pt-20 pb-6 sm:px-8 lg:px-12 lg:pt-25 lg:pb-11"
+  >
+    <SectionHeader eyebrow="Zusammenarbeit" title="Wenig Termine, kurze Wege" id="vor-ort-titel">
+      <p>
+        Sie haben einen Betrieb zu führen und keine Zeit für lange
+        Besprechungen. Deshalb läuft das meiste {callTexts.via}: das
+        Erstgespräch, das Angebot und die Rückmeldungen zu Zwischenständen.
+      </p>
+      <p>
+        Persönlich treffen wir uns einmal, bei Ihnen im Betrieb. Entweder um
+        Ihre Fotos und Unterlagen gemeinsam durchzusehen oder zur Übergabe, bei
+        der ich Ihnen die fertige Website zeige und erkläre.
+      </p>
+      <p>
+        Im ganzen {site.region}, von {imprint.city} bis Siegburg, ist die
+        Anfahrt im Festpreis enthalten. {onSite.travelOutside}.
+      </p>
+    </SectionHeader>
+  </section>
+
+  <LightDivider start={1.5} />
+
+  <section
+    aria-labelledby="lokal-titel"
+    class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+  >
+    <SectionHeader
+      eyebrow="Gefunden werden"
+      title="Damit Kunden aus der Region Sie finden"
+      id="lokal-titel"
+    >
+      <p>
+        Ihre Kunden kommen aus der Umgebung. Diese drei Punkte machen es ihnen
+        leichter, Sie bei Google zu finden.
+      </p>
+    </SectionHeader>
+    <InfoGrid items={local} />
+    <p class="mt-10">
+      <a
+        href={pages.websites.href}
+        class="inline-flex items-center rounded-full border border-surface-2 px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:border-accent"
+      >
+        Alles zu den Website-Paketen
+      </a>
+    </p>
+  </section>
+
+  <LightDivider start={6} />
+  <Leistungen />
+  <LightDivider start={3} />
+  <Faq items={pageFaq} />
+  <LightDivider start={8} />
+  <Kontakt />
+</PageLayout>

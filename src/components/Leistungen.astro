@@ -1,0 +1,62 @@
+---
+import Reveal from './Reveal.astro';
+import ServiceCard from './ServiceCard.astro';
+import { features, maintenance, pages, pricing, services } from '../data/site';
+---
+
+<section
+  id="leistungen"
+  aria-labelledby="leistungen-titel"
+  class="mx-auto max-w-[1280px] px-5 py-20 sm:px-8 lg:px-12 lg:py-25"
+>
+  <div class="mb-14 max-w-[640px]">
+    <p class="mb-3.5 text-[13px] font-bold tracking-[0.08em] uppercase text-accent">
+      Leistungen
+    </p>
+    <Reveal>
+      <h2
+        id="leistungen-titel"
+        class="mb-4 text-[clamp(1.75rem,3.5vw,2.625rem)] font-extrabold tracking-[-0.02em] text-white"
+      >
+        Was ich für Ihren Betrieb mache
+      </h2>
+      {/* Erklaert das "ab" an den Preisen, bevor jemand danach fragen muss. */}
+      <p class="text-base leading-relaxed text-body">
+        Die Preise sind Einstiegspreise. Den genauen Festpreis nennt Ihnen das
+        schriftliche Angebot nach dem Erstgespräch. {pricing.taxNote}
+      </p>
+    </Reveal>
+  </div>
+
+  {/* Die Karten sollen in einer Zeile gleich hoch sein, daher grid + flex. */}
+  <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    {
+      services.map((service) => (
+        <li class="flex">
+          <ServiceCard service={service} />
+        </li>
+      ))
+    }
+  </ul>
+
+  {/* Die laufenden Kosten gehoeren zum Preis dazu. Sie stehen hier offen,
+      statt erst im Angebot aufzutauchen. Die Einzelheiten stehen im Abschnitt
+      Wartung der Seite zu den Websites. */}
+  {
+    features.showPricing && (
+      <p class="mt-10 flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-2xl border border-dashed border-surface-2 px-6 py-5 text-[15px] leading-relaxed text-body">
+        <span class="font-bold text-white">Nach dem Start:</span>
+        <span>
+          {maintenance.title} {maintenance.price}, mit Hosting, Domain, Updates
+          und kleinen Änderungen.
+        </span>
+        <a
+          href={`${pages.websites.href}#wartung`}
+          class="font-semibold text-accent transition-colors hover:text-accent-soft"
+        >
+          Mehr zur Wartung<span class="sr-only"> auf der Seite {pages.websites.title}</span>
+        </a>
+      </p>
+    )
+  }
+</section>

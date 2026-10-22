@@ -1,0 +1,59 @@
+---
+interface Props {
+  to: number;
+  /** Dauer in Millisekunden. */
+  duration?: number;
+}
+
+const { to, duration = 1200 } = Astro.props;
+---
+
+{/* Der Endwert steht bereits im HTML: ohne JavaScript ist die Zahl schlicht
+    da, und die Kachel hat von Anfang an ihre endgueltige Breite: kein
+    Layout-Shift, kein leeres Feld. */}
+<span data-countup={to} data-countup-duration={duration}>{to}</span>
+
+<script>
+  /**
+   * Zaehlt beim Hereinscrollen von 0 auf den Zielwert hoch. Nur fuer Zahlen,
+   * die beim Laden unterhalb des ersten Bildschirms stehen: eine sichtbare
+   * Zahl soll nicht kurz auf 0 springen.
+   */
+  const elements = [...document.querySelectorAll<HTMLElement>('[data-countup]')].filter(
+    (el) => el.getBoundingClientRect().top > window.innerHeight,
+  );
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (elements.length && !reduced && 'IntersectionObserver' in window) {
+    const run = (el: HTMLElement) => {
+      const target = Number(el.dataset.countup);
+      const duration = Number(el.dataset.countupDuration) || 1200;
+      if (!Number.isFinite(target)) return;
+
+      // Erst hier auf 0 zuruecksetzen, nicht schon beim Laden: bricht das
+      // Skript vorher ab, bleibt die richtige Zahl stehen statt einer Null.
+      const start = performance.now();
+      const step = (now: number) => {
+        const progress = Math.min((now - start) / duration, 1);
+        el.textContent = String(Math.round(progress * target));
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting && entry.boundingClientRect.top > 0) continue;
+          observer.unobserve(entry.target);
+          run(entry.target as HTMLElement);
+        }
+      },
+      // Etwas frueher ausloesen, damit der Sprung auf 0 noch ausserhalb des
+      // Sichtbereichs passiert und nicht als Flackern wahrgenommen wird.
+      { threshold: 0, rootMargin: '0px 0px 80px 0px' },
+    );
+
+    elements.forEach((el) => observer.observe(el));
+  }
+</script>

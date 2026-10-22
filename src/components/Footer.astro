@@ -1,0 +1,82 @@
+---
+import { site, contact, imprint, pages } from '../data/site';
+
+const year = new Date().getFullYear();
+
+// Der Footer fuehrt zu jeder Seite. Damit sind Impressum und Datenschutz von
+// ueberall mit einem Klick erreichbar (§ 5 DDG verlangt "leicht erkennbar und
+// unmittelbar erreichbar"), und die Rhein-Sieg-Seite, die nicht in der
+// Hauptnavigation steht, bleibt von jeder Seite aus verlinkt.
+const groups = [
+  {
+    heading: 'Leistungen',
+    links: [pages.websiteCheck, pages.websites, pages.automatisierung],
+  },
+  {
+    heading: site.name,
+    links: [pages.ueberMich, pages.rheinSieg],
+  },
+  {
+    heading: 'Rechtliches',
+    links: [pages.impressum, pages.datenschutz],
+  },
+];
+
+// Erlaubte Umbruchstelle vor dem @, damit die Adresse auf schmalen Displays
+// nicht aus der Spalte ragt.
+const atIndex = contact.email.indexOf('@');
+const emailLocal = contact.email.slice(0, atIndex);
+const emailDomain = contact.email.slice(atIndex);
+---
+
+<footer class="border-t border-surface-2">
+  <div
+    class="mx-auto grid max-w-[1280px] gap-10 px-5 py-12 sm:grid-cols-2 sm:px-8 lg:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-12"
+  >
+    <div class="flex flex-col gap-3">
+      <p class="text-base font-extrabold text-white">{site.name}</p>
+      <p class="text-sm leading-relaxed text-body">
+        {site.tagline}.<br />
+        Sitz in {imprint.city}, {site.region}.
+      </p>
+      <p class="text-sm">
+        <a
+          href={contact.emailHref}
+          class="font-medium text-accent transition-colors hover:text-accent-soft"
+        >
+          {emailLocal}<wbr />{emailDomain}
+        </a>
+      </p>
+    </div>
+
+    {
+      groups.map((group) => (
+        <nav aria-label={group.heading}>
+          <p class="mb-3 text-[13px] font-bold tracking-[0.08em] uppercase text-accent">
+            {group.heading}
+          </p>
+          <ul class="flex flex-col gap-2.5">
+            {group.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-sm font-medium text-body transition-colors hover:text-white"
+                >
+                  {link.title}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ))
+    }
+  </div>
+
+  <div class="border-t border-surface-2">
+    <div
+      class="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-4 px-5 py-6 sm:px-8 lg:px-12"
+    >
+      <p class="text-sm text-muted">© {year} {site.name}, {site.owner}</p>
+    </div>
+  </div>
+</footer>

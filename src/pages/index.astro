@@ -1,0 +1,48 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import LightDivider from '../components/LightDivider.astro';
+import Leistungen from '../components/Leistungen.astro';
+import Referenzen from '../components/Referenzen.astro';
+import Ablauf from '../components/Ablauf.astro';
+import UeberMich from '../components/UeberMich.astro';
+import Faq from '../components/Faq.astro';
+import Kontakt from '../components/Kontakt.astro';
+import Footer from '../components/Footer.astro';
+import { faq, pages, services, showReferenzen } from '../data/site';
+import { businessNode, websiteNode } from '../lib/structured-data';
+
+// Auszug: welche Fragen hier stehen, legt `showOn` in site.ts fest.
+const homeFaq = faq.filter((item) => item.showOn.includes(pages.home));
+---
+
+<BaseLayout
+  title="KaBoom Studios | Webdesign für Handwerksbetriebe"
+  description="Websites für Handwerksbetriebe zum Festpreis, gebaut von jemandem mit 22 Jahren im Handwerk. Auf Wunsch mit Online-Terminbuchung. Kostenloses Erstgespräch."
+  structuredData={[websiteNode(), businessNode(services)]}
+>
+  <Nav />
+  <main id="inhalt">
+    <Hero />
+    <LightDivider />
+    <Leistungen />
+    {
+      showReferenzen && (
+        <>
+          <LightDivider start={5.5} />
+          <Referenzen />
+        </>
+      )
+    }
+    <LightDivider start={8} />
+    <Ablauf />
+    <LightDivider start={1.5} />
+    <UeberMich />
+    <LightDivider start={6.5} />
+    <Faq items={homeFaq} />
+    <LightDivider start={4} />
+    <Kontakt />
+  </main>
+  <Footer />
+</BaseLayout>

@@ -1,0 +1,46 @@
+---
+export type Crumb = {
+  label: string;
+  /** Fehlt beim letzten Eintrag: das ist die aktuelle Seite. */
+  href?: string;
+};
+
+interface Props {
+  items: Crumb[];
+}
+
+const { items } = Astro.props;
+---
+
+{/* Sichtbare Brotkrumen nach dem Muster der WAI-ARIA Authoring Practices:
+    <nav> mit eigenem Namen, geordnete Liste, aria-current am letzten Eintrag.
+    Die Trennzeichen sind reine Optik und fuer Screenreader ausgeblendet.
+    Aus denselben Eintraegen baut PageLayout die strukturierten Daten
+    (BreadcrumbList). */}
+<nav aria-label="Brotkrumen" class="mb-8">
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+    {
+      items.map((item, index) => (
+        <li class="flex items-center gap-2">
+          {index > 0 && (
+            <span class="text-muted" aria-hidden="true">
+              /
+            </span>
+          )}
+          {item.href ? (
+            <a
+              href={item.href}
+              class="font-medium text-body transition-colors hover:text-white"
+            >
+              {item.label}
+            </a>
+          ) : (
+            <span aria-current="page" class="font-medium text-white">
+              {item.label}
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>

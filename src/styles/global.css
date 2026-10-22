@@ -1,0 +1,221 @@
+@import 'tailwindcss';
+
+/* ------------------------------------------------------------------
+   Schriften lokal: keine Verbindung zu Google-Servern (DSGVO).
+
+   Variable Font statt einzelner Schnitte: das Design nutzt 400 bis 800, als
+   statische Dateien waeren das fuenf Requests und rund 118 kB. Die eine
+   variable Datei deckt denselben Bereich mit 48 kB ab.
+   ------------------------------------------------------------------ */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  /* Bewusst format('woff2') und nicht das aeltere 'woff2-variations': ein
+     Browser, der den Formatnamen nicht kennt, ueberspringt die ganze Quelle
+     und faellt auf die Systemschrift zurueck. */
+  src: url('/fonts/inter-variable.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ------------------------------------------------------------------
+   Design-Tokens
+   ------------------------------------------------------------------ */
+@theme {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Liberation Mono', monospace;
+
+  --color-ink: #090d16; /* Seitenhintergrund */
+  --color-surface: #111827; /* Karten */
+  --color-surface-2: #1f2937; /* Rahmen, Icon-Flaechen, Inputs */
+  --color-line: #374151; /* Input-Rahmen */
+  --color-accent: #10b981; /* Primaer */
+  --color-accent-soft: #34d399; /* Link-Hover */
+  --color-accent-bright: #6ee7b7; /* Mitte des Lichtstrichs */
+  --color-on-accent: #04120c; /* Text auf Gruen */
+  --color-heading: #ffffff;
+  --color-body: #9ca3af; /* Fliesstext, 7,7:1 auf --color-ink */
+  /* Design-Wert war #6b7280 (4,3:1) und haette 4,5:1 verfehlt, deshalb angehoben. */
+  --color-muted: #7d8794; /* Meta-Text, 5,3:1 auf --color-ink */
+}
+
+/* ------------------------------------------------------------------
+   Keyframes fuer das Lichtmotiv. Beide aendern nur transform und opacity:
+   das erledigt der Compositor der Grafikkarte, ohne Layout oder Neuzeichnen
+   pro Bild, auch auf schwachen Handys.
+   ------------------------------------------------------------------ */
+@keyframes light-sweep {
+  0% {
+    transform: translate(-40%, -10%) rotate(-10deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.6;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(140%, 10%) rotate(-10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Basis
+   ------------------------------------------------------------------ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Sticky-Nav darf Sprungziele nicht verdecken */
+    scroll-padding-top: 5rem;
+    background-color: var(--color-ink);
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: var(--color-body);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* body ist eine Flex-Spalte mit min-h-screen (siehe BaseLayout): der Inhalt
+     dehnt sich, damit der Footer auf kurzen Seiten wie Impressum oder 404
+     unten bleibt statt mitten im Bild zu haengen. */
+  body > main {
+    flex: 1 0 auto;
+  }
+
+  h1,
+  h2,
+  h3 {
+    color: var(--color-heading);
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* Das Design zeigt keinen Fokus-Indikator, hier trotzdem Pflicht. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Scroll-Reveal: Versteckt wird nur, was beim Laden unterhalb des ersten
+     Bildschirms liegt. Das entscheidet das Skript in Reveal.astro und setzt
+     dann "pending". Ohne JavaScript, bei reduzierter Bewegung und fuer alles
+     im ersten Bildschirm bleibt der Inhalt einfach sichtbar. Weil das
+     Verstecken ausserhalb des Sichtbereichs passiert, blitzt nichts auf. */
+  [data-reveal='pending'] {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  /* Die Transition gehoert nur zum Einblenden. Haenge sie am Ausgangszustand,
+     liefe auch das Verstecken als Animation. */
+  [data-reveal='shown'] {
+    transition:
+      opacity 0.7s ease,
+      transform 0.7s ease;
+  }
+
+  /* Der Lichtstrich als durchgehendes Motiv: im Hero als Sweep quer durchs
+     Bild, zwischen den Sektionen als wandernder Glanz auf der Trennlinie.
+     Der weiche Rand kommt allein vom Schatten. Ein zusaetzlicher
+     Weichzeichner (filter) muesste bei jeder Bewegung neu berechnet werden. */
+  .light-beam {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-accent) 20%,
+      var(--color-accent-bright) 50%,
+      var(--color-accent) 80%,
+      transparent
+    );
+    box-shadow: 0 0 24px 4px --alpha(var(--color-accent) / 60%);
+    /* Ruhezustand bei reduzierter Bewegung: Motiv sichtbar, aber gedaempft. */
+    opacity: 0.6;
+  }
+
+  /* Duenne Variante fuer einen zweiten, ruhigeren Strich. */
+  .light-beam-thin {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-accent) 30%,
+      transparent 70%
+    );
+    box-shadow: 0 0 18px 3px --alpha(var(--color-accent) / 40%);
+    opacity: 0.6;
+  }
+
+  /* Weicher Schein als statischer Verlauf. Frueher sass hier blur(40px) auf
+     einer grossen Flaeche, die zugleich skaliert wurde: das kostet auf
+     schwachen Geraeten in jedem Bild Rechenzeit. closest-side laesst den
+     Verlauf genau am Rand der Flaeche auslaufen, deshalb entsteht ohne
+     Weichzeichner keine sichtbare Kante. */
+  .light-glow {
+    background: radial-gradient(
+      closest-side,
+      --alpha(var(--color-accent) / 16%),
+      --alpha(var(--color-accent) / 7%) 45%,
+      transparent
+    );
+    opacity: 0.5;
+  }
+
+  /* Bewegung nur ohne Wunsch nach reduzierter Bewegung. Dauer und Startpunkt
+     setzt die Komponente ueber --sweep-duration und --sweep-start (in
+     Sekunden). Der Startpunkt wird zur negativen Verzoegerung: die Animation
+     steht damit schon im ersten Bild mitten im Lauf, statt erst unsichtbar
+     anzulaufen oder waehrend einer Wartezeit still dazustehen. */
+  @media (prefers-reduced-motion: no-preference) {
+    .light-sweep {
+      animation: light-sweep var(--sweep-duration, 7s) linear
+        calc(var(--sweep-start, 0s) * -1) infinite;
+    }
+
+    .light-glow {
+      animation: pulse-glow 6s ease-in-out infinite;
+    }
+  }
+}

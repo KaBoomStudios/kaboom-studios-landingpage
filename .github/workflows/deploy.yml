@@ -1,0 +1,69 @@
+name: Deploy
+
+# Baut die Seite und veroeffentlicht sie auf GitHub Pages: bei jedem Push auf
+# main, also nach jedem gemergten Pull Request, und von Hand im Actions-Tab
+# ("Run workflow"). ci.yml hat deshalb keinen eigenen Push-Ausloeser, die
+# Pruefung laeuft auf main als erster Job dieses Workflows.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Immer nur ein Deploy gleichzeitig. Ein laufender Deploy wird nicht
+# abgebrochen, damit die Seite nie halb veroeffentlicht stehen bleibt
+# (Empfehlung aus der Pages-Vorlage von GitHub). Der Name unterscheidet sich
+# bewusst von der Gruppe in ci.yml, sonst wuerden sich Aufrufer und
+# aufgerufene Pruefung gegenseitig abbrechen.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  pruefung:
+    name: Pruefung
+    # Von Hand laesst sich der Workflow auf jedem Branch starten. Veroeffentlicht
+    # wird aber nur der geprueft gemergte Stand auf main.
+    if: github.ref == 'refs/heads/main'
+    # Dieselbe Pruefung wie bei Pull Requests (Typen, Build, Zusagen im
+    # ausgelieferten HTML). Schlaegt sie fehl, wird nichts veroeffentlicht.
+    uses: ./.github/workflows/ci.yml
+
+  build:
+    name: Build fuer Pages
+    needs: pruefung
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v7
+
+      - name: Installieren, bauen und als Pages-Artefakt hochladen
+        # Offizielle Action von Astro. Sie erkennt npm am package-lock.json,
+        # installiert, baut nach dist/ und laedt das Ergebnis hoch. Sie
+        # installiert mit `npm install` statt `npm ci`; dass Lockfile und
+        # package.json zusammenpassen, hat die Pruefung davor schon
+        # sichergestellt.
+        uses: withastro/action@v6
+        with:
+          # Gleiche Node-Version wie in ci.yml, damit gepruefter und
+          # veroeffentlichter Build unter denselben Bedingungen entstehen.
+          node-version: 24
+
+  deploy:
+    name: Veroeffentlichen
+    needs: build
+    runs-on: ubuntu-latest
+    # Nur dieser Job darf auf Pages schreiben. id-token braucht deploy-pages,
+    # um sich gegenueber Pages auszuweisen.
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Auf GitHub Pages veroeffentlichen
+        id: deployment
+        uses: actions/deploy-pages@v5
